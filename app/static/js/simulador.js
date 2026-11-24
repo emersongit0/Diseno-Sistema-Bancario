@@ -1,0 +1,5 @@
+import {api} from './api.js';
+import {$,esc,dinero,tabla,formulario,seguro,cargarCuentas,grafico} from './ui.js';
+$('#cuenta-simulador').onchange=()=>{const cuenta=Boolean($('#cuenta-simulador').value);for(const selector of ['#saldo-simulador','#tasa-simulador']){$(selector).disabled=cuenta;$(selector).required=!cuenta;}};
+formulario('#form-simulador',async datos=>{datos.id_cuenta=datos.id_cuenta||null;const r=await api('/api/simulador',{method:'POST',datos});const d=r.datos;$('#resultado-simulador').innerHTML=`<p class="texto-suave" style="margin-top:20px">Saldo al final de tu proyección</p><p class="resumen-total">${esc(dinero(d.saldo_final))}</p>${grafico(d.proyeccion)}<div class="resumen-linea"><span>Tiempo hasta tu meta</span><strong>${d.meses_meta===null?'No alcanzada en 600 meses':Number(d.meses_meta)===0?'Ya alcanzada':`${Number(d.meses_meta)} meses`}</strong></div><p class="texto-suave" style="margin-top:15px">${esc(r.mensaje)}</p>`;$('#detalle-proyeccion').hidden=false;tabla('#tabla-proyeccion',d.proyeccion,[['mes','Mes'],['saldo','Saldo proyectado',v=>esc(dinero(v)),true]]);});
+seguro(()=>cargarCuentas(['#cuenta-simulador'],{opcional:true}));

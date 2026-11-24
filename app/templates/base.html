@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light"><title>{{ titulo }} · Banco Oracle</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/banco.css') }}">
+</head>
+<body class="antialiased" data-pagina="{{ pagina }}">
+<a href="#contenido" class="saltar">Ir al contenido</a>
+<aside id="barra-lateral" class="sidebar" aria-label="Navegación principal">
+  <a class="marca" href="/"><span class="marca-icono" aria-hidden="true">◎</span><span>Banco<span class="marca-sub">ORACLE</span></span></a>
+  <p class="nav-titulo">TU ESPACIO BANCARIO</p>
+  <nav>{% for nombre,ruta,etiqueta,desc,objetos in pantallas %}
+    <a href="{{ ruta }}" class="nav-link {% if pagina == nombre %}activo{% endif %}" {% if pagina == nombre %}aria-current="page"{% endif %}>
+      <span class="nav-numero">{{ '%02d'|format(loop.index) }}</span><span>{{ etiqueta }}</span>{% if pagina == nombre %}<span class="nav-punto"></span>{% endif %}
+    </a>{% endfor %}
+  </nav>
+  <div class="sidebar-pie"><span class="punto"></span> Oracle Database <p>Proyecto académico · PL/SQL</p></div>
+</aside>
+<div class="principal">
+  <header class="topbar"><div class="topbar-ruta"><button id="menu-movil" type="button" class="boton-icono menu-movil" aria-label="Abrir navegación" aria-controls="barra-lateral" aria-expanded="false">☰</button><span>Mi banco</span><span class="separador">/</span><strong>{{ titulo }}</strong></div><div class="topbar-derecha"><span class="moneda">PEN · S/</span><span class="avatar" aria-label="Banco Oracle">BO</span></div></header>
+  <main id="contenido" class="contenido">
+    <div class="encabezado"><div><p class="eyebrow">BANCO ORACLE</p><h1>{{ titulo }}</h1><p class="subtitulo">{{ descripcion }}</p></div><div class="encabezado-acciones">{% block acciones %}{% endblock %}</div></div>
+    <noscript><p class="aviso error">Activa JavaScript para consultar datos y operar.</p></noscript>
+    <div id="estado-pagina" role="status" class="sr-only" aria-live="polite"></div>
+    {% block contenido %}{% endblock %}
+    <section class="panel-oracle" aria-labelledby="titulo-objetos"><div class="panel-oracle-top"><div class="oracle-titulo"><span class="simbolo-codigo" aria-hidden="true">&lt;/&gt;</span><div><h2 id="titulo-objetos">Objetos Oracle usados</h2><p>Consulta la implementación detrás de cada acción.</p></div></div><button id="ver-codigo" type="button" class="boton secundario">Ver código PL/SQL <span aria-hidden="true">↗</span></button></div><div id="objetos-oracle" class="chips"><span class="texto-suave">Los objetos aparecerán al realizar una consulta o acción.</span></div></section>
+    <footer class="pie">Banco Oracle <span>Cuentas y transferencias · Moneda nacional</span></footer>
+  </main>
+</div>
+<dialog id="modal-codigo" class="modal modal-grande" aria-labelledby="titulo-codigo"><div class="modal-top"><div><p class="eyebrow">IMPLEMENTACIÓN ORACLE</p><h2 id="titulo-codigo">Código PL/SQL</h2></div><button type="button" class="boton-icono" data-cerrar="modal-codigo" aria-label="Cerrar código">×</button></div><div class="codigo-controles"><label for="objeto-codigo">Objeto</label><select id="objeto-codigo"></select><button id="copiar-codigo" type="button" class="boton secundario">Copiar código</button></div><p id="archivo-codigo" class="texto-suave"></p><pre class="codigo"><code id="contenido-codigo">Selecciona un objeto.</code></pre></dialog>
+<dialog id="modal-detalle" class="modal modal-grande" aria-labelledby="titulo-detalle"><div class="modal-top"><h2 id="titulo-detalle">Detalle</h2><button type="button" class="boton-icono" data-cerrar="modal-detalle" aria-label="Cerrar detalle">×</button></div><div id="contenido-detalle"></div></dialog>
+<div id="toasts" class="toasts" aria-live="polite" aria-atomic="false"></div>
+<script id="objetos-pagina" type="application/json">{{ objetos_pagina|tojson }}</script>
+<script type="module" src="{{ url_for('static', filename='js/' + pagina + '.js') }}"></script>
+{% block modales %}{% endblock %}
+</body></html>
