@@ -1,4 +1,4 @@
--- RECREACIÓN ÚNICAMENTE: elimina los 38 objetos de B2.2 y sus datos.
+-- RECREACIÓN ÚNICAMENTE: elimina los 40 objetos de B2.2 y sus datos.
 -- NO ejecutar durante la instalación normal de Fase 3.
 -- Ejecutar solo para rehacer el proyecto desde 01; los bloques son archivos.
 -- DDL confirma transacciones: esta limpieza no se puede deshacer con ROLLBACK.
@@ -19,6 +19,7 @@ BEGIN
     eliminar('DROP SYNONYM CUENTAS');
     eliminar('DROP SYNONYM MOVIMIENTOS');
     eliminar('DROP SYNONYM AUDITORIA');
+    eliminar('DROP SYNONYM LIMITES_CATEGORIAS');
     eliminar('DROP SYNONYM LOG_ERRORES');
     -- TRIGGER
     eliminar('DROP TRIGGER TRG_CUENTAS_AU');
@@ -50,6 +51,7 @@ BEGIN
     eliminar('DROP TABLE TBL_CUENTAS PURGE');
     eliminar('DROP TABLE TBL_CLIENTES PURGE');
     eliminar('DROP TABLE TBL_AUDITORIA PURGE');
+    eliminar('DROP TABLE TBL_LIMITES_CATEGORIAS PURGE');
     eliminar('DROP TABLE TBL_LOG_ERRORES PURGE');
     -- TYPE
     eliminar('DROP TYPE T_MOV_TABLA');

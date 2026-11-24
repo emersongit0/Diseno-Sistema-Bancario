@@ -64,17 +64,17 @@ Temario (el docente usó el esquema HR solo como referencia; aquí se crean tabl
 
 #### B2.2 Lista cerrada de objetos (única fuente para 99\_limpiar.sql, la whitelist del modal y el test de cobertura)
 
-- Tablas (5): TBL\_CLIENTES, TBL\_CUENTAS, TBL\_MOVIMIENTOS, TBL\_AUDITORIA, TBL\_LOG\_ERRORES.
+- Tablas (6): TBL\_CLIENTES, TBL\_CUENTAS, TBL\_MOVIMIENTOS, TBL\_AUDITORIA, TBL\_LOG\_ERRORES, TBL\_LIMITES\_CATEGORIAS.
 - Secuencias (5): SQ\_CLIENTE, SQ\_CUENTA, SQ\_MOVIMIENTO, SQ\_AUDITORIA, SQ\_LOG.
 - Tipos (2): T\_MOV\_FILA, T\_MOV\_TABLA.
 - Vistas (2): V\_ESTADO\_CUENTA, V\_CUENTAS\_RESUMEN.
 - Funciones (4): FN\_SALDO\_DISPONIBLE, FN\_CATEGORIA\_CLIENTE, FN\_COMISION, FN\_ESTADO\_CUENTA\_MENSUAL.
 - Procedimientos (10): SP\_LOG\_ERROR, SP\_ABRIR\_CUENTA, SP\_DEPOSITAR, SP\_RETIRAR, SP\_TRANSFERIR, SP\_CAMBIAR\_ESTADO\_CUENTA, SP\_APLICAR\_INTERESES, SP\_ACTUALIZAR\_CATEGORIAS, SP\_REPORTE\_CLIENTES, SP\_LAB\_ERRORES.
 - Triggers (5): TRG\_CLIENTES\_BI, TRG\_CUENTAS\_BI, TRG\_MOVIMIENTOS\_BI, TRG\_MOVIMIENTOS\_AI, TRG\_CUENTAS\_AU.
-- Sinónimos (5): CLIENTES, CUENTAS, MOVIMIENTOS, AUDITORIA, LOG\_ERRORES.
+- Sinónimos (6): CLIENTES, CUENTAS, MOVIMIENTOS, AUDITORIA, LOG\_ERRORES, LIMITES\_CATEGORIAS.
 - Bloques anónimos (2, son archivos y no objetos de la BD): BLOQUE\_SIMULADOR\_INTERES (`sql/bloques/simulador_interes.sql`) y BLOQUE\_RESUMEN\_CLIENTE (`sql/bloques/resumen_cliente.sql`).
 
-Total: 38 objetos de BD + 2 bloques = 40 entradas indexables. No inventes objetos fuera de esta lista salvo auxiliares justificados que añadas a ella, a la matriz y a AGENTS.md.
+Total actual: 40 objetos de BD + 2 bloques = 42 entradas indexables (incluye la ampliación de límites editables solicitada el 24/11/2026). No inventes objetos fuera de esta lista salvo auxiliares justificados que añadas a ella, a la matriz y a AGENTS.md.
 
 #### B2.3 Tablas (script 01)
 
@@ -100,7 +100,7 @@ Todas con PK, FK, CHECK y `COMMENT ON`. Nombres en MAYÚSCULAS y en español. Re
 
 - SP\_LOG\_ERROR(p\_proc, p\_codigo, p\_mensaje) con PRAGMA AUTONOMOUS\_TRANSACTION: registra en TBL\_LOG\_ERRORES aunque el llamador haga ROLLBACK. Va primero.
 - FN\_SALDO\_DISPONIBLE(p\_id\_cuenta) RETURN NUMBER: SELECT INTO; NO\_DATA\_FOUND lanza -20002.
-- FN\_CATEGORIA\_CLIENTE(p\_saldo\_total) RETURN VARCHAR2 con IF/ELSIF/ELSE: menos de 5,000 es BASICO; de 5,000 a 49,999.99 es GOLD; 50,000 o más es PREMIUM.
+- FN\_CATEGORIA\_CLIENTE(p\_saldo\_total) RETURN VARCHAR2 con IF/ELSIF/ELSE: lee los límites vigentes en TBL\_LIMITES\_CATEGORIAS. Menos de LIMITE\_GOLD es BASICO; desde LIMITE\_GOLD hasta antes de LIMITE\_PREMIUM es GOLD; desde LIMITE\_PREMIUM es PREMIUM. Valores iniciales: 5,000 y 50,000.
 - FN\_COMISION(p\_monto, p\_categoria DEFAULT 'BASICO') RETURN NUMBER: tasas BASICO 1.5%, GOLD 0.8%, PREMIUM 0.3%. Comisión = ROUND(GREATEST(monto \* tasa, 1.00), 2): mínimo S/ 1.00 para TODAS las categorías y 2 decimales. Monto <= 0 lanza -20004. Usa constantes (CONSTANT) e IF/ELSIF/ELSE. Valores de referencia: (100,'BASICO') = 1.50; (10,'BASICO') = 1.00; (1000,'GOLD') = 8.00; (1000,'PREMIUM') = 3.00.
 
 #### B2.7 Excepciones propias
@@ -232,7 +232,7 @@ Reglas de mensaje: (1) para los códigos de negocio (-20001 a -20007) el texto q
 - `test_errores.py`: una prueba por cada fila de B3.4, incluidas las dos variantes de 503 y la extracción del nombre de restricción.
 - `test_reintentos.py`: las lecturas se reintentan UNA vez; ningún POST/PUT se reintenta; una caída durante escritura devuelve el 503 de «No se pudo confirmar la operación».
 - `test_sin_tbl.py`: falla si «TBL\_» aparece en cualquier .py, .js o .html dentro de `app/`, `run.py` o `probar_conexion.py`. Construye el patrón como `'TB' + 'L_'` y no escanea la carpeta `tests/`, para no encontrarse a sí mismo.
-- `test_codigo_indice.py`: verifica que `codigo_plsql.py` indexa las 40 entradas de B2.2 (lee solo archivos .sql; no usa base de datos) y que un nombre desconocido da 404.
+- `test_codigo_indice.py`: verifica que `codigo_plsql.py` indexa las 42 entradas de B2.2 (lee solo archivos .sql; no usa base de datos) y que un nombre desconocido da 404.
 - `test_api.py`: contrato de cada endpoint de B3.5 con servicios simulados (forma `{ok, mensaje, codigo, datos, objetos_oracle}`).
 - `comparar_snapshots.py` es un script (no se recolecta como prueba): normaliza espacios y fin de línea de docs/snapshot\_ad\_antes.txt y docs/snapshot\_ad\_despues.txt y avisa si difieren.
 
@@ -291,10 +291,22 @@ Columnas: Punto | Objeto | Archivo SQL | Pantalla | Endpoint | Prueba | Estado. 
 | Cada excepción propia (-20001 a -20007) se provoca desde la interfaz con mensaje claro | smoke F3, Laboratorio (Fase 5) y test\_errores.py |
 | Un error se registra en TBL\_LOG\_ERRORES aunque haya ROLLBACK | smoke F3 |
 | Los puntos 3 a 16 se demuestran con una acción visible y su código | docs/MATRIZ\_OBJETOS.md todo «Verificado» (Fase 6) |
-| El modal de código cubre las 40 entradas de B2.2 | test\_codigo\_indice.py (Fase 4) |
+| El modal de código cubre las 42 entradas de B2.2 | test\_codigo\_indice.py (Fase 4) |
 | Las tablas AD\_ quedan intactas (nombres y cantidad) | comparar\_snapshots.py (Fase 3) y revisión en Fase 6 |
 | pytest pasa sin conexión a la base de datos | conftest.py y Fase 4 |
 | Ninguna operación de escritura se reintenta | test\_reintentos.py (Fase 4) |
 | Cero credenciales en el código; .env fuera de Git y sin permiso de lectura para el agente | `git ls-files`, `.claude/settings.json` y revisión en Fase 6 |
 
 Empieza ahora con la Fase 0.
+
+
+### Ampliación autorizada: límites de categorías editables (24/11/2026)
+
+El usuario solicita editar los límites de saldo y retirar la revisión/recalcular incorporada en UI. Se conserva el botón original Actualizar categorías, que llama SP_ACTUALIZAR_CATEGORIAS. Guardar límites no actualiza clientes automáticamente.
+
+- Tabla TBL_LIMITES_CATEGORIAS: una fila ID_CONFIG=1; LIMITE_GOLD y LIMITE_PREMIUM NUMBER(14,2) NOT NULL; VERSION NUMBER(10) DEFAULT 1 NOT NULL. PK_LIMITES_CATEGORIAS, CK_LIMITES_CONFIG, CK_LIMITES_ORDEN (0 < Gold < Premium), CK_LIMITES_VERSION y restricciones NOT NULL nombradas. Sinónimo LIMITES_CATEGORIAS.
+- sql/11_limites_categorias.sql se ejecuta una vez antes de 05_funciones.sql, tanto al actualizar como al instalar de cero. Crea solo tabla y sinónimo y confirma los valores iniciales; no cambia clientes, cuentas ni movimientos. No repetir el script 11 sobre una instalación ya migrada.
+- FN_CATEGORIA_CLIENTE y BLOQUE_RESUMEN_CLIENTE leen esta configuración; siguiente nivel y falta para alcanzarlo usan los mismos límites. La clasificación sigue en PL/SQL. La copia del bloque en smoke se mantiene sincronizada. Las pruebas históricas de umbrales fijos corresponden a valores iniciales.
+- GET /api/categorias/limites devuelve limite_gold, limite_premium y version. PUT del mismo recurso valida importes/orden/version; bloquea la configuración con WAIT 5, rechaza versiones obsoletas (409), guarda mediante binds y confirma en el servicio sin reintentar la escritura.
+- Pantalla: Editar límites abre los valores vigentes; Guardar límites muestra confirmación; Cancelar descarta el formulario. Básico cubre los saldos inferiores a Gold. Se retiran Revisar clientes, Recalcular y tabla comparativa.
+- Matriz e índice pasan a 42 entradas. La nueva validación real permanece pendiente hasta confirmación del usuario; las pruebas locales usan mocks y nunca conectan a Oracle.

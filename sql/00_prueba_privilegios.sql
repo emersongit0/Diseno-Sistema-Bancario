@@ -1,6 +1,6 @@
 -- Ejecutar como SCRIPT en FreeSQL. No ejecutarlo desde el agente.
 -- DDL confirma transacciones: usar una hoja sin transacciones pendientes.
--- La primera consulta debe devolver CERO filas (38 nombres de B2.2).
+-- La primera consulta debe devolver CERO filas (40 nombres de B2.2).
 SELECT object_name, object_type, status
 FROM USER_OBJECTS
 WHERE object_name IN (
@@ -9,6 +9,7 @@ WHERE object_name IN (
         'TBL_MOVIMIENTOS',
         'TBL_AUDITORIA',
         'TBL_LOG_ERRORES',
+        'TBL_LIMITES_CATEGORIAS',
         'SQ_CLIENTE',
         'SQ_CUENTA',
         'SQ_MOVIMIENTO',
@@ -41,7 +42,8 @@ WHERE object_name IN (
         'CUENTAS',
         'MOVIMIENTOS',
         'AUDITORIA',
-        'LOG_ERRORES'
+        'LOG_ERRORES',
+        'LIMITES_CATEGORIAS'
 )
 ORDER BY object_name, object_type;
 
@@ -72,6 +74,7 @@ BEGIN
         'TBL_MOVIMIENTOS',
         'TBL_AUDITORIA',
         'TBL_LOG_ERRORES',
+        'TBL_LIMITES_CATEGORIAS',
         'SQ_CLIENTE',
         'SQ_CUENTA',
         'SQ_MOVIMIENTO',
@@ -104,7 +107,8 @@ BEGIN
         'CUENTAS',
         'MOVIMIENTOS',
         'AUDITORIA',
-        'LOG_ERRORES'
+        'LOG_ERRORES',
+        'LIMITES_CATEGORIAS'
     );
     IF v_total > 0 THEN
         RAISE_APPLICATION_ERROR(-20990, 'Ya existen nombres de B2.2; detenerse y revisar la primera consulta.');

@@ -72,13 +72,14 @@ Los scripts los pega y ejecuta el usuario en la hoja de trabajo de FreeSQL, usan
 
 | Orden | Archivo / sección | Resultado esperado |
 | --- | --- | --- |
-| 0 | sql/00_prueba_privilegios.sql | Ninguno de los 38 nombres de producción existe; auxiliares válidos y eliminados; sin errores |
+| 0 | sql/00_prueba_privilegios.sql | Ninguno de los 40 nombres de producción existe; auxiliares válidos y eliminados; sin errores |
 | 0b | sql/00b_snapshot_ad.sql | Guardar total y lista de tablas AD_ en docs/snapshot_ad_antes.txt |
 | 1 | sql/01_tablas.sql | Cinco tablas con restricciones y comentarios |
 | 2 | sql/02_secuencias.sql | Cinco secuencias |
 | 3 | sql/03_tipos.sql | Dos tipos SQL |
 | F1 | Solo sección F1 de sql/smoke/smoke_plsql.sql | 5 tablas, 5 secuencias y 2 tipos VALID; F1 OK |
 | 4 | sql/04_vistas.sql | Dos vistas |
+| 4b | sql/11_limites_categorias.sql (una vez, antes de 05) | Configuración Gold/Premium y sinónimo; valores iniciales 5000/50000 |
 | 5 | sql/05_funciones.sql | SP_LOG_ERROR y tres funciones |
 | 6 | sql/06_triggers.sql | Cinco triggers BEFORE/AFTER |
 | F2A | Solo sección F2A del smoke | Once objetos VALID; funciones, vistas y triggers correctos; F2A OK |
@@ -122,7 +123,7 @@ En PowerShell, desde el proyecto:
 
 Abre [Banco Oracle local](http://127.0.0.1:5000). El servidor de desarrollo escucha solo en el equipo local, con debug desactivado. Detén con Ctrl+C. Después de cambios en Python, reinícialo; si el navegador conserva recursos antiguos, recarga con Ctrl+F5.
 
-El Dashboard muestra conexión verde o roja. Las pantallas incluyen **Objetos Oracle usados** y **Ver código PL/SQL**. Los chips se obtienen de las respuestas de la API y permiten abrir el código de cada objeto. El modal funciona leyendo los archivos SQL locales, incluso si Oracle no está disponible.
+El Dashboard muestra conexión verde o roja. Las pantallas incluyen **Objetos Oracle usados** y **Ver código PL/SQL**. La franja **Cómo funciona en Oracle** es plegable. Muestra la última acción relevante y los objetos declarados por su respuesta; las recargas auxiliares no reemplazan ese contexto. No representa una traza automática del motor. El modal diferencia objetos reportados de otras implementaciones disponibles; el catálogo descriptivo no sustituye el código SQL. El modal funciona leyendo los archivos SQL locales, incluso si Oracle no está disponible.
 
 | Pantalla | Ruta | Acción principal |
 | --- | --- | --- |
@@ -137,9 +138,9 @@ El Dashboard muestra conexión verde o roja. Las pantallas incluyen **Objetos Or
 | Auditoría y errores | /auditoria | Consultar auditoría y log de errores |
 | Laboratorio | /laboratorio | Demostrar siete excepciones estándar y siete propias |
 
-Las transferencias muestran una cotización con espera de 300 ms al escribir el monto. El procedimiento vuelve a validar saldo, estado y comisión al confirmar. No hay reintento automático de escrituras. Si aparece «No se pudo confirmar la operación», revisa el estado de cuenta antes de repetirla. Una cuenta bloqueada no permite mover dinero.
+Las transferencias muestran una cotización con espera de 300 ms al escribir el monto. El botón Revisar no envía una escritura: abre una revisión con cuenta, destino, monto, comisión y total cotizados. Solo Confirmar envía el POST, con protección de doble envío. Cambiar cuenta, destino o monto invalida revisión y cotización. La revisión no reserva saldo ni comisión. El procedimiento vuelve a validar saldo, estado y comisión al confirmar. No hay reintento automático de escrituras. Tras el resultado puedes consultar movimientos y continuar con otra operación. Si aparece «No se pudo confirmar la operación», revisa el estado de cuenta antes de repetirla. Una cuenta bloqueada no permite mover dinero.
 
-Intereses se aplican una sola vez por mes de referencia a cada cuenta elegible; un interés redondeado a cero se omite. Las categorías no cambian automáticamente al operar: utiliza **Actualizar categorías**. El simulador no registra movimientos, admite hasta 600 meses y devuelve meta no alcanzada si supera ese límite. Sus aportes se consideran al final de cada mes.
+Administración separa las pestañas Intereses mensuales y Categorías de clientes. Aplicar intereses exige revisar el periodo antes de confirmar y no anticipa un número de afectados; los conteos se muestran desde la respuesta real. La consulta de categoría para un saldo no actualiza clientes. Intereses se aplican una sola vez por mes de referencia a cada cuenta elegible; un interés redondeado a cero se omite. Las categorías no cambian automáticamente al operar: utiliza **Revisar clientes** y después **Recalcular categorías**. El simulador no registra movimientos, admite hasta 600 meses y devuelve meta no alcanzada si supera ese límite. Sus aportes se consideran al final de cada mes.
 
 ### Comprobar la API manualmente
 
@@ -157,6 +158,28 @@ Esperado: `ok: True`; resumen del cliente existente; saldo final 1221.10 en la s
 
 Todas las respuestas API usan `{ok, mensaje, codigo, datos, objetos_oracle}`. Los reportes JSON y el resumen están en `datos.json`; la proyección está en `datos.proyeccion`. `/api/codigo/<objeto>` coloca `{objeto, tipo, archivo, codigo}` dentro de `datos`; nombres desconocidos responden 404. Detalle de endpoints y errores: docs/ESPECIFICACION.md, secciones B3.4 y B3.5.
 
+### Organización y continuidad del panel interno
+
+Las diez rutas se conservan y se agrupan en Inicio; Atención y operaciones; Administración; Consultas y supervisión; Pruebas y demostración. Estos grupos organizan tareas, no implementan permisos, usuarios ni login.
+
+El recorrido normal es **registrar cliente → abrir su cuenta → operar → consultar movimientos/estado mensual → supervisar actividad**. Desde el resultado del alta puedes abrir una cuenta con el cliente ya seleccionado. Cuentas permite filtro por titular, vuelta al listado general, historial completo, últimos 20 movimientos, estado mensual y acceso a Operaciones. El bloqueo se revisa antes de confirmar: impide mover dinero, pero no elimina ni cierra la cuenta.
+
+| Destino | Parámetros opcionales | Efecto sin escritura al abrir |
+| --- | --- | --- |
+| /clientes | nuevo=1 | Abre el formulario de alta |
+| /cuentas | id_cliente | Filtra por ID del titular, con filtro visible y Ver todas |
+| /cuentas | id_cliente y abrir=1 | Abre el formulario con titular preseleccionado |
+| /cuentas | id_cuenta | Resalta y consulta movimientos de la cuenta |
+| /operaciones | id_cuenta y tipo | Preselecciona cuenta activa y depositar/retirar/transferir |
+| /estado-cuenta | id_cuenta | Preselecciona cuenta para la consulta mensual |
+| /reporte | id_cliente | Preselecciona titular para generar el árbol |
+
+Los IDs se validan y contrastan con las opciones disponibles. Ante un parámetro inválido se informa y se permite elegir manualmente. Nombres repetidos no se usan para enlazar titulares. GET /api/cuentas admite id_cliente opcional, validado y pasado por binds; sin filtro conserva el listado general. Cada cuenta agrega id_cliente y tipo conservando los campos existentes. Se relacionan V_CUENTAS_RESUMEN y CUENTAS sin modificar la vista SQL.
+
+El resumen del cliente distingue categoría registrada y nivel calculado; si difieren, orienta hacia Actualizar categorías. El reporte aclara que muestra los últimos N movimientos de cada cuenta, no todo el historial. El simulador diferencia plazo de proyección y tiempo hasta la meta, y su resultado advierte que no registra movimientos ni modifica saldo. Auditoría y Registro de errores tienen propósitos distintos y un alcance de últimos 200 registros. Laboratorio explica los catorce casos y ofrece ir a Cuentas si no hay una activa.
+
+El catálogo de 42 objetos está en app/static/datos/objetos_oracle.json y su coordinación en oracle.js. El código continúa viniendo exclusivamente del índice de archivos SQL. La documentación y evidencia de validación de esta reorganización están en docs/REORGANIZACION_UI_UX.md; la nueva prueba real del usuario sigue pendiente.
+
 ## 5. Pruebas locales sin base de datos
 
 ```powershell
@@ -164,7 +187,7 @@ Todas las respuestas API usan `{ok, mensaje, codigo, datos, objetos_oracle}`. Lo
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-Referencia de cierre local: **129 pruebas correctas**. pytest no inicia el servidor ni se conecta a Oracle. `tests/conftest.py` bloquea connect, create_pool, connect_async, create_pool_async y la lectura de dotenv; los datos y conexiones de pruebas son ficticios.
+Referencia tras reorganización UI/UX: **160 pruebas correctas** (129 en la versión previa). pytest no inicia el servidor ni se conecta a Oracle. `tests/conftest.py` bloquea connect, create_pool, connect_async, create_pool_async y la lectura de dotenv; los datos y conexiones de pruebas son ficticios.
 
 | Prueba | Qué valida |
 | --- | --- |
@@ -173,9 +196,10 @@ Referencia de cierre local: **129 pruebas correctas**. pytest no inicia el servi
 | test_errores.py | Cada fila de B3.4, restricciones y ocultación de esquema |
 | test_reintentos.py | Una repetición de lectura; ninguna de POST/PUT; commit incierto y rollback |
 | test_sin_tbl.py | Solo sinónimos en Python, JavaScript y HTML de la aplicación |
-| test_codigo_indice.py | Las 40 entradas de B2.2 y 404 de nombres desconocidos |
+| test_codigo_indice.py | Las 42 entradas actuales de B2.2 y 404 de nombres desconocidos |
 | test_repositories.py | Orden de IN/OUT, binds, lectura CLOB y Decimal |
 | test_pool_config.py | Wallet opcional, pool perezoso y timeouts |
+| test_paginas.py | Diez rutas, grupos, opción activa, componentes y contexto sin escritura |
 | test_laboratorio.py | Códigos esperados, rollback y esquema oculto |
 
 Las pruebas SQL del smoke son manuales y están separadas en `sql/smoke/`. Las pruebas de navegador de desarrollo se realizaron sobre HTML estático con respuestas ficticias; no sustituyen la comprobación real de una operación por pantalla. La confirmación del usuario registra esas comprobaciones en la matriz.
@@ -209,7 +233,7 @@ Referencias de funciones: FN_COMISION(100,BASICO)=1.50; (10,BASICO)=1.00; (1000,
 
 En Laboratorio, NO_DATA_FOUND presenta SQLCODE 100; es el valor esperado de esa excepción PL/SQL. Los demás casos muestran sus códigos negativos. El laboratorio responde `ok: True` cuando capturó la excepción esperada y muestra en sus datos el HTTP que correspondería al error de negocio. Fuera del laboratorio no se expone SQLERRM crudo.
 
-La evidencia de requisito → objeto → pantalla → endpoint → prueba se mantiene en docs/MATRIZ_OBJETOS.md. La lista cerrada contiene **38 objetos de BD + 2 bloques = 40 entradas**; no se indexan pruebas, datos ni limpieza.
+La evidencia de requisito → objeto → pantalla → endpoint → prueba se mantiene en docs/MATRIZ_OBJETOS.md. La lista cerrada contiene **40 objetos de BD + 2 bloques = 42 entradas**; no se indexan pruebas, datos ni limpieza.
 
 ## 7. Respaldo
 
@@ -229,7 +253,7 @@ Mantén `.env` y cualquier wallet únicamente en un almacenamiento privado separ
 
 ### Si quieres recrear los objetos en el mismo esquema
 
-`sql/99_limpiar.sql` elimina **únicamente los 38 objetos cerrados de B2.2**, uno por uno y en orden inverso de dependencias. Elimina también los datos del banco, la auditoría y el log. DDL no se revierte con ROLLBACK. No lo ejecutes para iniciar Flask, corregir un formulario o comprobar Fase 6.
+`sql/99_limpiar.sql` elimina **únicamente los 40 objetos actuales de B2.2**, uno por uno y en orden inverso de dependencias. Elimina también los datos del banco, la auditoría y el log. DDL no se revierte con ROLLBACK. No lo ejecutes para iniciar Flask, corregir un formulario o comprobar Fase 6.
 
 Solo si tú decides expresamente rehacer el banco, detén Flask, conserva el respaldo que necesites de tus datos propios y ejecuta manualmente 99 como SCRIPT. Tolera objetos ausentes por los códigos especificados y relanza cualquier otro error. No descubre ni elimina «todos los objetos del usuario», ni referencia tablas AD_. Después sigue de nuevo la secuencia de instalación completa, incluida la prueba de privilegios sobre nombres ya ausentes.
 
@@ -244,7 +268,7 @@ No existe ejecutor automático SQL: `ejecutar_sql.py` pertenece a la Fase 7 opci
 | Cuenta ocupada | Resuelve tu transacción pendiente en FreeSQL con COMMIT o ROLLBACK según corresponda; bloqueo máximo WAIT 5 |
 | Error de confirmación incierta | Consulta movimientos y saldo antes de repetir la operación |
 | Cuenta no aparece habilitada en Operaciones | Revisa si está bloqueada en Cuentas |
-| Misma categoría después de operar | Pulsa Actualizar categorías; se calcula con saldo total del cliente |
+| Misma categoría después de operar | Revisa clientes y confirma Recalcular categorías; se calcula con saldo total del cliente |
 | Cero intereses aplicados | Verifica estado, tasa, saldo, mes ya procesado y redondeo a cero |
 | No hay movimientos en un mes | Escoge el mes en que registraste operaciones; revisa fecha en historial |
 | Snapshots diferentes solo por encabezado | Copia en el mismo idioma/formato; conserva nombres, cantidad y orden originales |
@@ -264,4 +288,30 @@ git ls-files -- .env
 
 Esperado: SNAPSHOTS OK; pruebas correctas; `.env` ignorado; ninguna salida del último comando. La matriz marca Verificado solo después de las confirmaciones del usuario que cubren cada fila. El estado actual de AD_ requiere la nueva salida de FreeSQL; comparar dos archivos viejos no basta.
 
-Los commits locales requieren permiso explícito según A7 de la especificación. Antes de cada commit se revisa `git status` y se confirma que `.env` no aparezca. No se hace push sin solicitud. El usuario autorizó un único commit local de cierre que recoge el estado real actual, incluidas las fases anteriores, sin inventar un historial anterior. Nunca incluyas credenciales, wallets, `.venv` ni `work/`.
+Para la reorganización actual en vistas/flujo_normal, el usuario realiza personalmente commits y push: el agente no los ejecuta ni prepara staging. El permiso anterior de cierre correspondió únicamente a ea530c0. La regla general de A7 exige permiso explícito para otros commits. Antes de cada commit se revisa `git status` y se confirma que `.env` no aparezca. No se hace push sin solicitud. El usuario autorizó un único commit local de cierre que recoge el estado real actual, incluidas las fases anteriores, sin inventar un historial anterior. Nunca incluyas credenciales, wallets, `.venv` ni `work/`.
+
+
+### Legibilidad de la interfaz
+
+El ajuste visual común conserva el título de página en 32 px (28 en móvil), texto/tabla/menú en 15 px, grupos de navegación en 12 px y botones en 14 px. Los estilos específicos del panel resisten el preflight que Tailwind CDN inyecta después de cargar. Se verificó el runtime real del CDN: antes reducía el título a 14 px.
+
+En Cuentas, Saldo y sus valores se alinean a la derecha, Tipo/Estado al centro y Cuenta/Titular a la izquierda. Las acciones de Cuentas se muestran compactas en una línea; su tabla usa texto de 14 px y filas de 55 px aproximadamente. Clientes conserva su texto de 15 px y centra las acciones. Los listados tienen un ancho máximo de 1180 px y márgenes simétricos dentro del área de trabajo. En pantallas estrechas la tabla se desplaza internamente sin ensanchar la página y puede enfocarse con teclado. Revisa el resultado con zoom 100 % (Ctrl+0) y recarga con Ctrl+F5 para descartar recursos antiguos.
+
+
+El menú diferencia encabezados de grupo con mayúsculas, peso marcado, color verde suave y separadores; las opciones aparecen debajo con sangría y color propio. Este ajuste posterior es exclusivamente CSS: conserva encabezados principales, navegación, datos y operaciones. La navegación lateral dispone de scroll interno y barra discreta.
+
+
+## Límites de saldo editables: actualizar la instalación existente
+
+1. En una hoja de FreeSQL sin transacciones pendientes, ejecuta como SCRIPT `sql/11_limites_categorias.sql` **una sola vez**. Añade la configuración con Gold=5000 y Premium=50000, sin modificar clientes ni movimientos.
+2. Ejecuta como SCRIPT `sql/05_funciones.sql`. Reemplaza las funciones existentes para que la clasificación consulte los límites guardados.
+3. Opcionalmente ejecuta `sql/smoke/smoke_limites_categorias.sql`; debe imprimir LIMITES OK y revierte sus cambios.
+4. Reinicia Flask y recarga con Ctrl+F5. En Categorías, pulsa **Editar límites**, modifica Gold/Premium y confirma **Guardar límites**. Cancelar conserva la configuración anterior.
+5. **Actualizar categorías de clientes** aplica las condiciones guardadas a los clientes según sus saldos. Guardar los límites por sí solo no modifica sus categorías registradas.
+
+La consulta por saldo y el resumen de cliente usan los mismos límites en Oracle. Las pruebas históricas con 4999.99/5000/50000 corresponden a la configuración inicial; no repetir la carga de datos ni las fases antiguas para verificar esta ampliación. En una instalación nueva, el script 11 debe ejecutarse antes del 05, como indica la tabla de instalación.
+
+
+## Guía para la sustentación (Fase 8)
+
+[docs/GUIA_SUSTENTACION.md](docs/GUIA_SUSTENTACION.md) explica los 16 puntos con analogías, acciones actuales, recorrido por Oracle, frases para exponer y preguntas probables. Incluye código literal, tabla de referencia y una demo de 14 minutos con Ana Torres y Luis Vargas. Documenta las adaptaciones y distingue pruebas locales de validación real pendiente.

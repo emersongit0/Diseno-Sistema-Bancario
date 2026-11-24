@@ -5,8 +5,13 @@ from app.utils.resultado import Resultado
 from app.utils.errores import ErrorAplicacion
 
 
-def listar(conexion: Any) -> Resultado:
-    return Resultado(consultar(conexion,"SELECT * FROM V_CUENTAS_RESUMEN ORDER BY ID_CUENTA"))
+def listar(conexion: Any, id_cliente: int | None = None) -> Resultado:
+    sql = "SELECT v.*,c.ID_CLIENTE,c.TIPO FROM V_CUENTAS_RESUMEN v JOIN CUENTAS c ON c.ID_CUENTA=v.ID_CUENTA"
+    binds = {}
+    if id_cliente is not None:
+        sql += " WHERE c.ID_CLIENTE=:id_cliente"
+        binds["id_cliente"] = id_cliente
+    return Resultado(consultar(conexion,sql + " ORDER BY v.ID_CUENTA",binds))
 
 
 def opciones(conexion: Any) -> Resultado:

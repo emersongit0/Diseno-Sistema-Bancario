@@ -25,4 +25,4 @@ def intereses(datos: dict) -> tuple[dict,int]:
 
 
 def categorias() -> tuple[dict,int]:
-    return ejecutar(reporte_repo.categorias,["SP_ACTUALIZAR_CATEGORIAS","FN_CATEGORIA_CLIENTE"])
+    return ejecutar(reporte_repo.categorias,["SP_ACTUALIZAR_CATEGORIAS","FN_CATEGORIA_CLIENTE","LIMITES_CATEGORIAS"])

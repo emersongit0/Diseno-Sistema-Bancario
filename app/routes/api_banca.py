@@ -38,7 +38,10 @@ def resumen(identificador: int) -> tuple: return enviar(reportes.resumen(identif
 def categoria() -> tuple: return enviar(banca.categoria(request.args.get('saldo')))
 
 @api.get('/cuentas')
-def cuentas() -> tuple: return enviar(banca.cuentas())
+def cuentas() -> tuple:
+    if len(request.args.getlist('id_cliente')) > 1:
+        raise ErrorAplicacion('Envía un solo id_cliente.')
+    return enviar(banca.cuentas(request.args.get('id_cliente')))
 
 @api.get('/cuentas/opciones')
 def opciones() -> tuple: return enviar(banca.opciones())
@@ -93,3 +96,11 @@ def errores() -> tuple: return enviar(banca.errores())
 
 @api.post('/laboratorio/<caso>')
 def laboratorio(caso: str) -> tuple: return enviar(laboratorio_service.demostrar(caso))
+
+
+@api.get('/categorias/limites')
+def limites_categorias() -> tuple: return enviar(banca.limites_categorias())
+
+
+@api.put('/categorias/limites')
+def editar_limites_categorias() -> tuple: return enviar(banca.limites_categorias(cuerpo()))

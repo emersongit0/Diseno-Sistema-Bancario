@@ -85,4 +85,38 @@ Fase 0 confirmada por el usuario con «privilegios OK». Las 40 entradas B2.2 se
 | 5, 15, 16 | Pantalla F5: Auditoría y errores | sql/06_triggers.sql; sql/09_sinonimos.sql | Auditoría y errores | GET /api/auditoria; GET /api/errores | QA navegador con mocks OK; manual F5 confirmado por «continua»: Dos listados; panel y modal de código | Verificado |
 | 16 | Pantalla F5: Laboratorio | sql/07_procedimientos.sql | Laboratorio | POST /api/laboratorio/<caso> | QA navegador con mocks OK; manual F5 confirmado por «continua»: Códigos Oracle, SQLERRM y HTTP; panel y modal de código | Verificado |
 
+| 3–16 | Reorganización: Navegación UI/UX por responsabilidades | No aplica: paginas.py y base.html | Diez pantallas | Diez rutas HTML | test_paginas.py; QA con mocks; pendiente manual | Creado |
+| 3, 5 | Reorganización: Filtro de cuentas por ID de cliente | sql/04_vistas.sql; sql/09_sinonimos.sql | Clientes / Cuentas | GET /api/cuentas?id_cliente= | test_api.py; test_repositories.py; pendiente manual | Creado |
+| 9, 13 | Reorganización: Continuidad de cliente a apertura y reporte | sql/07_procedimientos.sql; sql/bloques/resumen_cliente.sql | Clientes / Cuentas / Reporte | GET/POST /api/clientes; GET/POST /api/cuentas; GET /api/reporte/clientes | QA con mocks; pendiente manual | Creado |
+| 13, 14, 15 | Reorganización: Revisión y confirmación única de transferencia | sql/05_funciones.sql; sql/07_procedimientos.sql | Operaciones | GET /api/comision; POST /api/transferir | QA: sin POST al revisar, invalidación, doble clic y respuesta incierta; pendiente manual | Creado |
+| 13, 15 | Reorganización: Revisión de bloqueo y desbloqueo | sql/07_procedimientos.sql; sql/06_triggers.sql | Cuentas | POST /api/cuentas/<id>/estado | QA sin escritura al revisar; pendiente manual | Creado |
+| 7, 11, 12 | Reorganización: Administración separada y revisión de periodo | sql/07_procedimientos.sql | Intereses / Categorías | POST /api/intereses/aplicar; POST /api/categorias/actualizar; GET /api/categoria | QA con mocks; pendiente manual | Creado |
+| 6, 8 | Reorganización: Contexto y alcance de consultas | sql/07_procedimientos.sql; sql/08_funcion_pipelined.sql | Estado mensual / Reporte | GET /api/estado-cuenta/<id>; GET /api/reporte/clientes | test_paginas.py; QA de parámetros inválidos; pendiente manual | Creado |
+| 9, 10, 11 | Reorganización: Simulador explicado sin modificar saldo | sql/bloques/simulador_interes.sql | Simulador de ahorro | POST /api/simulador | QA de cuenta opcional y aviso; pendiente manual | Creado |
+| 5, 16 | Reorganización: Supervisión y pruebas diferenciadas | sql/09_sinonimos.sql; sql/07_procedimientos.sql | Auditoría / Laboratorio | GET /api/auditoria; GET /api/errores; POST /api/laboratorio/<caso> | QA de listados y catorce casos; pendiente manual | Creado |
+| 3–16 | Reorganización: Explicación Oracle contextual y catálogo de 40 objetos | Scripts 01 a 09 y sql/bloques/ | Todas | GET /api/codigo/<objeto> | test_codigo_indice.py; QA de contexto y código disponible; pendiente manual | Creado |
+
+| 3–16 | Legibilidad y composición común de la interfaz | No aplica: CSS y renderer HTML | Todas; referencia Cuentas | Sin cambios de API | QA con Tailwind real: tipografía, alineación, márgenes y móvil; pendiente visual del usuario | Creado |
+
 Incidencia F2B resuelta: el usuario ejecutó la versión corregida y compartió F2B OK. Los binds reales de Flask fueron confirmados en Fase 4.
+
+Las filas históricas Verificado corresponden a la versión previa confirmada. La reorganización UI/UX está implementada y probada sin Oracle; sus diez filas nuevas esperan confirmación manual del usuario. El catálogo descriptivo no agrega objetos de base de datos.
+
+
+## Ampliación solicitada: límites editables
+
+| Punto | Objeto | Archivo SQL | Pantalla | Endpoint | Prueba | Estado |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2 Tablas | TBL_LIMITES_CATEGORIAS | sql/11_limites_categorias.sql | Intereses y categorías | GET/PUT /api/categorias/limites | test_limites_categorias.py; smoke_limites_categorias.sql y validación real pendiente | Creado |
+| 5 Sinónimos | LIMITES_CATEGORIAS | sql/11_limites_categorias.sql | Intereses y categorías | GET/PUT /api/categorias/limites | test_limites_categorias.py; validación real pendiente | Creado |
+| 12 y 14 | FN_CATEGORIA_CLIENTE configurable | sql/05_funciones.sql | Intereses y categorías | GET /api/categoria | smoke_limites_categorias.sql; pendiente FreeSQL | Creado |
+| 9 y 12 | BLOQUE_RESUMEN_CLIENTE con límites vigentes | sql/bloques/resumen_cliente.sql | Clientes | GET /api/clientes/<id>/resumen | Pendiente comprobación real de siguiente nivel/falta | Creado |
+
+
+## Cierre base Fase 6 y guía de Fase 8
+
+El 24/11/2026 el usuario confirmó que generó la salida actual de snapshot y obtuvo SNAPSHOTS OK. Se cierra Fase 6 de la entrega original. Esta confirmación no cubre las filas nuevas UI/UX ni límites editables: conservan Creado.
+
+| Punto | Objeto | Archivo SQL | Pantalla | Endpoint | Prueba | Estado |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1–16 | Fase 8: docs/GUIA_SUSTENTACION.md | Referencias a fuentes reales; no agrega SQL | Diez pantallas actuales y preparación previa | Endpoints reales citados en guía | Validación local de 16 puntos, cuatro preguntas, analogías, fragmentos literales de máximo 12 líneas, enlaces y demo de 14 minutos; pendiente lectura del usuario | Creado |

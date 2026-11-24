@@ -62,3 +62,34 @@ def test_serializacion_decimal_y_fechas(app):
     with app.app_context():
         datos=json.loads(app.json.dumps({'monto':Decimal('1.50'),'fecha':datetime(2026,11,24,9,0)}))
     assert datos=={'monto':1.5,'fecha':'2026-11-24T09:00:00'}
+
+
+@pytest.mark.parametrize('query,esperado',[('',None),('?id_cliente=3',3)])
+def test_filtro_cuentas_conserva_listado(cliente,monkeypatch,query,esperado):
+    from contextlib import contextmanager
+    from app.db import pool
+    from app.repositories import cuenta_repo
+    from app.utils.resultado import Resultado
+    @contextmanager
+    def prestar(): yield Mock()
+    monkeypatch.setattr(pool,'conexion',prestar)
+    llamada=Mock(return_value=Resultado([{'id_cuenta':1000,'id_cliente':3,'tipo':'AHORROS','saldo':100}]))
+    monkeypatch.setattr(cuenta_repo,'listar',llamada)
+    r=cliente.get('/api/cuentas'+query)
+    assert r.status_code==200 and r.json['datos'][0]['id_cliente']==3
+    assert llamada.call_args.args[1]==esperado
+    assert r.json['objetos_oracle']==['V_CUENTAS_RESUMEN','CUENTAS']
+
+@pytest.mark.parametrize('valor',['','-1','0','abc','1.5','1 OR 1=1','NaN','10000000000'])
+def test_filtro_cuentas_invalido_no_consulta(cliente,monkeypatch,valor):
+    from app.repositories import cuenta_repo
+    llamada=Mock();monkeypatch.setattr(cuenta_repo,'listar',llamada)
+    r=cliente.get('/api/cuentas',query_string={'id_cliente':valor})
+    assert r.status_code==400 and not r.json['ok']
+    llamada.assert_not_called()
+
+
+
+def test_filtro_duplicado_no_elige_cliente_arbitrario(cliente):
+    r=cliente.get('/api/cuentas?id_cliente=1&id_cliente=2')
+    assert r.status_code==400 and 'un solo' in r.json['mensaje']

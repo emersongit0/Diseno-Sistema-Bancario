@@ -17,6 +17,7 @@ RESTRICCIONES = {
     "UQ_CLIENTES_DNI":"DNI ya registrado", "UQ_CLIENTES_EMAIL":"Email ya registrado",
     "CK_CLIENTES_DNI":"El DNI debe tener 8 dígitos", "CK_CUENTAS_SALDO":"La operación dejaría saldo negativo",
     "CK_CUENTAS_TIPO":"Tipo de cuenta inválido",
+    "CK_LIMITES_ORDEN":"Premium debe ser mayor que Gold y ambos límites deben ser positivos",
 }
 CONEXION = "No se pudo conectar a la base de datos, revisa tu internet"
 INCIERTA = "No se pudo confirmar la operación; revisa el estado de cuenta antes de repetirla"

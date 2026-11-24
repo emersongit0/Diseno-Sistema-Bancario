@@ -1,5 +1,6 @@
 """Reportes, intereses, categorías y simulación PL/SQL."""
 from typing import Any
+from app.utils.errores import ErrorAplicacion
 from app.repositories.base import consultar, procedimiento, bloque
 from app.utils.resultado import Resultado
 
@@ -22,6 +23,10 @@ def intereses(conexion: Any, mes) -> Resultado:
 
 
 def categorias(conexion: Any) -> Resultado:
+    with conexion.cursor() as cursor:
+        cursor.execute("SELECT VERSION FROM LIMITES_CATEGORIAS WHERE ID_CONFIG=1 FOR UPDATE WAIT 5")
+        if cursor.fetchone() is None:
+            raise ErrorAplicacion("Falta instalar la configuración de categorías.",409)
     return procedimiento(conexion,"SP_ACTUALIZAR_CATEGORIAS",[],{"n_procesados":"numero","n_cambios":"numero"})
 
 

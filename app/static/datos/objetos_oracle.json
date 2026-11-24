@@ -1,0 +1,384 @@
+{
+  "TBL_CLIENTES": {
+    "nombre": "TBL_CLIENTES",
+    "tipo": "TABLE",
+    "proposito": "Conserva los registros de clientes.",
+    "temas": [
+      "Tablas",
+      "Restricciones"
+    ]
+  },
+  "TBL_CUENTAS": {
+    "nombre": "TBL_CUENTAS",
+    "tipo": "TABLE",
+    "proposito": "Conserva los registros de cuentas.",
+    "temas": [
+      "Tablas",
+      "Restricciones"
+    ]
+  },
+  "TBL_MOVIMIENTOS": {
+    "nombre": "TBL_MOVIMIENTOS",
+    "tipo": "TABLE",
+    "proposito": "Conserva los registros de movimientos.",
+    "temas": [
+      "Tablas",
+      "Restricciones"
+    ]
+  },
+  "TBL_AUDITORIA": {
+    "nombre": "TBL_AUDITORIA",
+    "tipo": "TABLE",
+    "proposito": "Conserva los registros de auditoria.",
+    "temas": [
+      "Tablas",
+      "Restricciones"
+    ]
+  },
+  "TBL_LOG_ERRORES": {
+    "nombre": "TBL_LOG_ERRORES",
+    "tipo": "TABLE",
+    "proposito": "Conserva los registros de log errores.",
+    "temas": [
+      "Tablas",
+      "Restricciones"
+    ]
+  },
+  "SQ_CLIENTE": {
+    "nombre": "SQ_CLIENTE",
+    "tipo": "SEQUENCE",
+    "proposito": "Genera identificadores para clientes.",
+    "temas": [
+      "Secuencias"
+    ]
+  },
+  "SQ_CUENTA": {
+    "nombre": "SQ_CUENTA",
+    "tipo": "SEQUENCE",
+    "proposito": "Genera identificadores para cuentas, avanzando de diez en diez.",
+    "temas": [
+      "Secuencias"
+    ]
+  },
+  "SQ_MOVIMIENTO": {
+    "nombre": "SQ_MOVIMIENTO",
+    "tipo": "SEQUENCE",
+    "proposito": "Genera identificadores para movimientos.",
+    "temas": [
+      "Secuencias"
+    ]
+  },
+  "SQ_AUDITORIA": {
+    "nombre": "SQ_AUDITORIA",
+    "tipo": "SEQUENCE",
+    "proposito": "Genera identificadores para auditoría.",
+    "temas": [
+      "Secuencias"
+    ]
+  },
+  "SQ_LOG": {
+    "nombre": "SQ_LOG",
+    "tipo": "SEQUENCE",
+    "proposito": "Genera identificadores para el log de errores.",
+    "temas": [
+      "Secuencias"
+    ]
+  },
+  "T_MOV_FILA": {
+    "nombre": "T_MOV_FILA",
+    "tipo": "TYPE",
+    "proposito": "Define una fila del estado de cuenta mensual.",
+    "temas": [
+      "Tipos SQL",
+      "PIPELINED"
+    ]
+  },
+  "T_MOV_TABLA": {
+    "nombre": "T_MOV_TABLA",
+    "tipo": "TYPE",
+    "proposito": "Define la colección de filas del estado mensual.",
+    "temas": [
+      "Tipos SQL",
+      "PIPELINED"
+    ]
+  },
+  "V_ESTADO_CUENTA": {
+    "nombre": "V_ESTADO_CUENTA",
+    "tipo": "VIEW",
+    "proposito": "Relaciona movimientos, cuentas y titulares para consultar el historial.",
+    "temas": [
+      "Vistas"
+    ]
+  },
+  "V_CUENTAS_RESUMEN": {
+    "nombre": "V_CUENTAS_RESUMEN",
+    "tipo": "VIEW",
+    "proposito": "Resume saldo, titular, estado y actividad de cada cuenta.",
+    "temas": [
+      "Vistas"
+    ]
+  },
+  "SP_LOG_ERROR": {
+    "nombre": "SP_LOG_ERROR",
+    "tipo": "PROCEDURE",
+    "proposito": "Guarda el error con transacción autónoma, incluso ante rollback del llamador.",
+    "temas": [
+      "Procedimientos",
+      "Excepciones",
+      "Transacción autónoma"
+    ]
+  },
+  "FN_SALDO_DISPONIBLE": {
+    "nombre": "FN_SALDO_DISPONIBLE",
+    "tipo": "FUNCTION",
+    "proposito": "Consulta el saldo vigente y rechaza cuentas inexistentes.",
+    "temas": [
+      "Funciones",
+      "Excepciones"
+    ]
+  },
+  "FN_CATEGORIA_CLIENTE": {
+    "nombre": "FN_CATEGORIA_CLIENTE",
+    "tipo": "FUNCTION",
+    "proposito": "Determina el nivel del cliente a partir de su saldo total.",
+    "temas": [
+      "Funciones",
+      "IF/ELSIF/ELSE"
+    ]
+  },
+  "FN_COMISION": {
+    "nombre": "FN_COMISION",
+    "tipo": "FUNCTION",
+    "proposito": "Calcula la comisión según categoría y aplica el mínimo de un sol.",
+    "temas": [
+      "Funciones",
+      "Constantes",
+      "IF/ELSIF/ELSE"
+    ]
+  },
+  "TRG_CLIENTES_BI": {
+    "nombre": "TRG_CLIENTES_BI",
+    "tipo": "TRIGGER",
+    "proposito": "Asigna el identificador cuando falta y normaliza nombres y apellidos.",
+    "temas": [
+      "Triggers BEFORE",
+      "Secuencias"
+    ]
+  },
+  "TRG_CUENTAS_BI": {
+    "nombre": "TRG_CUENTAS_BI",
+    "tipo": "TRIGGER",
+    "proposito": "Genera identificador y número de cuenta desde un único NEXTVAL.",
+    "temas": [
+      "Triggers BEFORE",
+      "Secuencias"
+    ]
+  },
+  "TRG_MOVIMIENTOS_BI": {
+    "nombre": "TRG_MOVIMIENTOS_BI",
+    "tipo": "TRIGGER",
+    "proposito": "Valida el monto y calcula el saldo posterior antes de insertar.",
+    "temas": [
+      "Triggers BEFORE",
+      "Excepciones"
+    ]
+  },
+  "TRG_MOVIMIENTOS_AI": {
+    "nombre": "TRG_MOVIMIENTOS_AI",
+    "tipo": "TRIGGER",
+    "proposito": "Actualiza el saldo una sola vez y registra auditoría del movimiento.",
+    "temas": [
+      "Triggers AFTER",
+      "Auditoría"
+    ]
+  },
+  "TRG_CUENTAS_AU": {
+    "nombre": "TRG_CUENTAS_AU",
+    "tipo": "TRIGGER",
+    "proposito": "Audita los cambios reales de estado de una cuenta.",
+    "temas": [
+      "Triggers AFTER",
+      "Auditoría"
+    ]
+  },
+  "SP_ABRIR_CUENTA": {
+    "nombre": "SP_ABRIR_CUENTA",
+    "tipo": "PROCEDURE",
+    "proposito": "Valida el titular y abre una cuenta; registra el depósito inicial si corresponde.",
+    "temas": [
+      "Procedimientos IN/OUT",
+      "Excepciones"
+    ]
+  },
+  "SP_DEPOSITAR": {
+    "nombre": "SP_DEPOSITAR",
+    "tipo": "PROCEDURE",
+    "proposito": "Valida y registra un depósito en una cuenta activa.",
+    "temas": [
+      "Procedimientos IN/OUT",
+      "Excepciones"
+    ]
+  },
+  "SP_RETIRAR": {
+    "nombre": "SP_RETIRAR",
+    "tipo": "PROCEDURE",
+    "proposito": "Valida la cuenta y el saldo antes de registrar un retiro.",
+    "temas": [
+      "Procedimientos IN/OUT",
+      "Excepciones"
+    ]
+  },
+  "SP_TRANSFERIR": {
+    "nombre": "SP_TRANSFERIR",
+    "tipo": "PROCEDURE",
+    "proposito": "Valida las cuentas y registra envío, comisión y recepción.",
+    "temas": [
+      "Procedimientos IN/OUT",
+      "Excepciones"
+    ]
+  },
+  "SP_CAMBIAR_ESTADO_CUENTA": {
+    "nombre": "SP_CAMBIAR_ESTADO_CUENTA",
+    "tipo": "PROCEDURE",
+    "proposito": "Bloquea o habilita una cuenta sin eliminarla.",
+    "temas": [
+      "Procedimientos IN/OUT",
+      "Excepciones"
+    ]
+  },
+  "SP_APLICAR_INTERESES": {
+    "nombre": "SP_APLICAR_INTERESES",
+    "tipo": "PROCEDURE",
+    "proposito": "Procesa cuentas elegibles y devuelve cantidades actualizadas y omitidas.",
+    "temas": [
+      "FOR",
+      "Cursor implícito",
+      "SQL%ROWCOUNT",
+      "SQL%FOUND"
+    ]
+  },
+  "SP_ACTUALIZAR_CATEGORIAS": {
+    "nombre": "SP_ACTUALIZAR_CATEGORIAS",
+    "tipo": "PROCEDURE",
+    "proposito": "Recorre clientes y actualiza la categoría cuando cambia su nivel.",
+    "temas": [
+      "LOOP",
+      "EXIT WHEN",
+      "Cursores"
+    ]
+  },
+  "SP_REPORTE_CLIENTES": {
+    "nombre": "SP_REPORTE_CLIENTES",
+    "tipo": "PROCEDURE",
+    "proposito": "Construye un reporte JSON de clientes, cuentas y últimos movimientos.",
+    "temas": [
+      "Cursores con parámetros",
+      "Cursores anidados",
+      "JSON"
+    ]
+  },
+  "SP_LAB_ERRORES": {
+    "nombre": "SP_LAB_ERRORES",
+    "tipo": "PROCEDURE",
+    "proposito": "Provoca y captura excepciones controladas, revirtiendo cambios de prueba.",
+    "temas": [
+      "Excepciones",
+      "WHEN OTHERS",
+      "RERAISE",
+      "SAVEPOINT"
+    ]
+  },
+  "FN_ESTADO_CUENTA_MENSUAL": {
+    "nombre": "FN_ESTADO_CUENTA_MENSUAL",
+    "tipo": "FUNCTION",
+    "proposito": "Recorre movimientos del mes y calcula su saldo acumulado incluyendo el saldo anterior.",
+    "temas": [
+      "Cursor explícito",
+      "OPEN/FETCH/CLOSE",
+      "PIPELINED",
+      "%TYPE"
+    ]
+  },
+  "CLIENTES": {
+    "nombre": "CLIENTES",
+    "tipo": "SYNONYM",
+    "proposito": "Ofrece un nombre de acceso a clientes dentro del esquema personal.",
+    "temas": [
+      "Sinónimos"
+    ]
+  },
+  "CUENTAS": {
+    "nombre": "CUENTAS",
+    "tipo": "SYNONYM",
+    "proposito": "Ofrece un nombre de acceso a cuentas dentro del esquema personal.",
+    "temas": [
+      "Sinónimos"
+    ]
+  },
+  "MOVIMIENTOS": {
+    "nombre": "MOVIMIENTOS",
+    "tipo": "SYNONYM",
+    "proposito": "Ofrece un nombre de acceso a movimientos dentro del esquema personal.",
+    "temas": [
+      "Sinónimos"
+    ]
+  },
+  "AUDITORIA": {
+    "nombre": "AUDITORIA",
+    "tipo": "SYNONYM",
+    "proposito": "Ofrece un nombre de acceso a auditoría dentro del esquema personal.",
+    "temas": [
+      "Sinónimos"
+    ]
+  },
+  "LOG_ERRORES": {
+    "nombre": "LOG_ERRORES",
+    "tipo": "SYNONYM",
+    "proposito": "Ofrece un nombre de acceso a log de errores dentro del esquema personal.",
+    "temas": [
+      "Sinónimos"
+    ]
+  },
+  "BLOQUE_RESUMEN_CLIENTE": {
+    "nombre": "BLOQUE_RESUMEN_CLIENTE",
+    "tipo": "BLOQUE",
+    "proposito": "Consulta al cliente y resume saldo total, nivel y siguiente categoría.",
+    "temas": [
+      "Bloques anónimos",
+      "%TYPE",
+      "%ROWTYPE",
+      "IF/ELSIF/ELSE"
+    ]
+  },
+  "BLOQUE_SIMULADOR_INTERES": {
+    "nombre": "BLOQUE_SIMULADOR_INTERES",
+    "tipo": "BLOQUE",
+    "proposito": "Proyecta el ahorro y el tiempo hasta la meta sin modificar cuentas.",
+    "temas": [
+      "Bloques anónimos",
+      "Constantes",
+      "%TYPE",
+      "%ROWTYPE",
+      "FOR",
+      "WHILE"
+    ]
+  },
+  "TBL_LIMITES_CATEGORIAS": {
+    "nombre": "TBL_LIMITES_CATEGORIAS",
+    "tipo": "TABLE",
+    "proposito": "Conserva y permite editar los límites de saldo de las categorías.",
+    "temas": [
+      "Configuración",
+      "Restricciones"
+    ]
+  },
+  "LIMITES_CATEGORIAS": {
+    "nombre": "LIMITES_CATEGORIAS",
+    "tipo": "SYNONYM",
+    "proposito": "Conserva y permite editar los límites de saldo de las categorías.",
+    "temas": [
+      "Configuración",
+      "Restricciones"
+    ]
+  }
+}

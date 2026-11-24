@@ -5,6 +5,8 @@ DECLARE
     v_nivel TBL_CLIENTES.CATEGORIA%TYPE;
     v_falta NUMBER;
     v_siguiente VARCHAR2(7);
+    v_gold NUMBER;
+    v_premium NUMBER;
     v_resumen_json JSON_OBJECT_T := JSON_OBJECT_T();
 BEGIN
     :p_json := NULL; :p_estado := 'OK'; :p_codigo := 0;
@@ -12,10 +14,12 @@ BEGIN
     SELECT * INTO v_cliente FROM TBL_CLIENTES WHERE ID_CLIENTE = :p_id_cliente;
     SELECT NVL(SUM(SALDO),0) INTO v_total FROM TBL_CUENTAS
     WHERE ID_CLIENTE = v_cliente.ID_CLIENTE;
-    IF v_total < 5000 THEN
-        v_nivel := 'BASICO'; v_siguiente := 'GOLD'; v_falta := 5000 - v_total;
-    ELSIF v_total < 50000 THEN
-        v_nivel := 'GOLD'; v_siguiente := 'PREMIUM'; v_falta := 50000 - v_total;
+    SELECT LIMITE_GOLD,LIMITE_PREMIUM INTO v_gold,v_premium
+    FROM TBL_LIMITES_CATEGORIAS WHERE ID_CONFIG=1;
+    IF v_total < v_gold THEN
+        v_nivel := 'BASICO'; v_siguiente := 'GOLD'; v_falta := v_gold - v_total;
+    ELSIF v_total < v_premium THEN
+        v_nivel := 'GOLD'; v_siguiente := 'PREMIUM'; v_falta := v_premium - v_total;
     ELSE
         v_nivel := 'PREMIUM'; v_siguiente := NULL; v_falta := 0;
     END IF;

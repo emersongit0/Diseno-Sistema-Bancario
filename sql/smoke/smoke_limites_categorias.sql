@@ -1,0 +1,26 @@
+-- Ejecutar después de 11 y 05. No cambia clientes ni valores persistentes.
+SET SERVEROUTPUT ON
+DECLARE
+    PROCEDURE exigir(p_condicion BOOLEAN) IS
+    BEGIN
+        IF NOT p_condicion THEN RAISE_APPLICATION_ERROR(-20004,'Falló la clasificación con límites configurables.'); END IF;
+    END;
+BEGIN
+    SAVEPOINT prueba_limites;
+    UPDATE LIMITES_CATEGORIAS SET LIMITE_GOLD=10000,LIMITE_PREMIUM=70000 WHERE ID_CONFIG=1;
+    exigir(SQL%ROWCOUNT=1);
+    exigir(FN_CATEGORIA_CLIENTE(9999.99)='BASICO');
+    exigir(FN_CATEGORIA_CLIENTE(10000)='GOLD');
+    exigir(FN_CATEGORIA_CLIENTE(69999.99)='GOLD');
+    exigir(FN_CATEGORIA_CLIENTE(70000)='PREMIUM');
+    BEGIN
+        UPDATE LIMITES_CATEGORIAS SET LIMITE_PREMIUM=LIMITE_GOLD WHERE ID_CONFIG=1;
+        RAISE_APPLICATION_ERROR(-20004,'Se aceptaron límites iguales.');
+    EXCEPTION WHEN OTHERS THEN IF SQLCODE != -2290 THEN RAISE; END IF;
+    END;
+    ROLLBACK TO prueba_limites;
+    DBMS_OUTPUT.PUT_LINE('LIMITES OK: clasificación y restricciones; cambios revertidos.');
+EXCEPTION WHEN OTHERS THEN ROLLBACK; RAISE;
+END;
+/
+ROLLBACK;

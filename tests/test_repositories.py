@@ -3,6 +3,7 @@ from decimal import Decimal
 from unittest.mock import Mock
 from app.repositories import base,cliente_repo,cuenta_repo,reporte_repo
 import oracledb
+import pytest
 
 class Var:
     def __init__(self,tipo): self.tipo,self.valor=tipo,None
@@ -72,3 +73,18 @@ def test_insert_cliente_usa_binds_sin_concatenar():
     r=cliente_repo.crear(conexion,datos)
     sql,binds=cursor.execute.call_args.args
     assert "O'BRIEN" not in sql and binds['nombres']=="O'BRIEN" and r.datos['id_cliente']==1
+
+
+@pytest.mark.parametrize('identificador',[None,12])
+def test_cuentas_filtradas_por_id_con_binds(monkeypatch,identificador):
+    consulta=Mock(return_value=[{'id_cuenta':1000,'id_cliente':12,'titular':'Nombre repetido'}])
+    monkeypatch.setattr(cuenta_repo,'consultar',consulta)
+    resultado=cuenta_repo.listar(Mock(),identificador)
+    _,sql,binds=consulta.call_args.args
+    assert 'JOIN CUENTAS' in sql and 'c.ID_CLIENTE' in sql and 'c.TIPO' in sql
+    if identificador is None:
+        assert 'WHERE' not in sql and binds=={}
+    else:
+        assert 'WHERE c.ID_CLIENTE=:id_cliente' in sql and binds=={'id_cliente':12}
+        assert str(identificador) not in sql
+    assert resultado.datos[0]['id_cliente']==12

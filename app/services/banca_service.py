@@ -1,6 +1,6 @@
 """Capa delgada para clientes, cuentas y operaciones."""
 from decimal import Decimal
-from app.repositories import cliente_repo, cuenta_repo, movimiento_repo, auditoria_repo, reporte_repo
+from app.repositories import cliente_repo, cuenta_repo, movimiento_repo, auditoria_repo, reporte_repo, categoria_repo
 from app.services.transacciones import ejecutar
 from app.utils import validacion as v
 from app.utils.errores import ErrorAplicacion
@@ -29,8 +29,9 @@ def categoria(saldo: object) -> tuple[dict,int]:
     return ejecutar(lambda c:cliente_repo.categoria(c,saldo),["FN_CATEGORIA_CLIENTE"],lectura=True)
 
 
-def cuentas() -> tuple[dict,int]:
-    return ejecutar(cuenta_repo.listar,["V_CUENTAS_RESUMEN"],lectura=True)
+def cuentas(id_cliente: object = None) -> tuple[dict,int]:
+    identificador = None if id_cliente is None else v.entero(id_cliente,"id_cliente")
+    return ejecutar(lambda c:cuenta_repo.listar(c,identificador),["V_CUENTAS_RESUMEN","CUENTAS"],lectura=True)
 
 
 def opciones() -> tuple[dict,int]:
@@ -87,3 +88,13 @@ def auditoria() -> tuple[dict,int]:
 
 def errores() -> tuple[dict,int]:
     return ejecutar(auditoria_repo.errores,["LOG_ERRORES"],lectura=True)
+
+
+def limites_categorias(datos: dict | None = None) -> tuple[dict,int]:
+    if datos is None:
+        return ejecutar(categoria_repo.leer,["LIMITES_CATEGORIAS"],lectura=True)
+    parametros = {n:v.importe(datos.get(n),n) for n in ('limite_gold','limite_premium')}
+    parametros['version'] = v.entero(datos.get('version'),'version',1,9999999998)
+    if parametros['limite_premium'] <= parametros['limite_gold']:
+        raise ErrorAplicacion("El límite de Premium debe ser mayor que el de Gold.")
+    return ejecutar(lambda c:categoria_repo.guardar(c,parametros),["LIMITES_CATEGORIAS"])
