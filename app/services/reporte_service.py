@@ -5,12 +5,12 @@ from app.utils import validacion as v
 
 
 def resumen(identificador: int) -> tuple[dict,int]:
-    return ejecutar(lambda c:cliente_repo.resumen(c,identificador),["BLOQUE_RESUMEN_CLIENTE"],lectura=True)
+    return ejecutar(lambda c:cliente_repo.resumen(c,identificador),["SP_RESUMEN_CLIENTE"],lectura=True)
 
 
 def estado_cuenta(identificador: int, anio: object, mes: object) -> tuple[dict,int]:
-    anio,mes = v.entero(anio,"anio",1,9998),v.entero(mes,"mes",1,12)
-    return ejecutar(lambda c:reporte_repo.estado_cuenta(c,identificador,anio,mes),["FN_ESTADO_CUENTA_MENSUAL","T_MOV_FILA","T_MOV_TABLA"],lectura=True)
+    anio,mes = v.entero(anio,"anio",1000,9998),v.entero(mes,"mes",1,12)
+    return ejecutar(lambda c:reporte_repo.estado_cuenta(c,identificador,anio,mes),["SP_ESTADO_CUENTA_MENSUAL"],lectura=True)
 
 
 def clientes(identificador: object, limite: object) -> tuple[dict,int]:

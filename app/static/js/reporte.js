@@ -1,7 +1,7 @@
 import {api} from './api.js';
 import {$,esc,dinero,badge,fecha,tabla,formulario,seguro,cargarClientes,vacio,parametroID,preseleccionar} from './ui.js';
 
-// Etiquetas de presentación: Oracle conserva sus nombres y reglas originales.
+// Etiquetas de presentación: MySQL conserva sus nombres y reglas originales.
 const tiposMovimiento={
  DEPOSITO:'Depósito',RETIRO:'Retiro',TRANSF_ENVIADA:'Transferencia enviada',
  TRANSF_RECIBIDA:'Transferencia recibida',INTERES:'Interés',COMISION:'Comisión',

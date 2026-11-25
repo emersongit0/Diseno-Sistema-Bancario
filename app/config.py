@@ -1,24 +1,16 @@
-"""Configuración de Oracle compartida con la prueba manual de conexión."""
-
+"""Configuración MySQL local; nunca carga el archivo .env de MySQL."""
+import json
 import os
 from pathlib import Path
-
-from dotenv import load_dotenv
-
-RAIZ = Path(__file__).resolve().parent.parent
+RAIZ=Path(__file__).resolve().parent.parent
 
 
-def parametros_conexion() -> dict[str, str]:
-    """Carga el archivo elegido y devuelve parámetros sin registrarlos."""
-    ruta = os.getenv("BANCO_ENV_FILE")
-    load_dotenv(Path(ruta) if ruta else RAIZ / ".env", override=False)
-    nombres = {"user": "DB_USER", "password": "DB_PASSWORD", "dsn": "DB_DSN"}
-    parametros = {clave: os.getenv(nombre, "") for clave, nombre in nombres.items()}
-    if any(not valor for valor in parametros.values()):
-        raise ValueError("Completa DB_USER, DB_PASSWORD y DB_DSN en tu configuración local.")
-    for clave, nombre in (("config_dir", "DB_WALLET_DIR"),
-                          ("wallet_location", "DB_WALLET_DIR"),
-                          ("wallet_password", "DB_WALLET_PASSWORD")):
-        if valor := os.getenv(nombre):
-            parametros[clave] = valor
-    return parametros
+def parametros_conexion() -> dict:
+    ruta=Path(os.getenv('BANCO_MYSQL_CONFIG',str(RAIZ/'mysql.local.json')))
+    datos=json.loads(ruta.read_text(encoding='utf-8')) if ruta.is_file() else {}
+    for clave,variable in [('host','MYSQL_HOST'),('port','MYSQL_PORT'),('user','MYSQL_USER'),('password','MYSQL_PASSWORD'),('database','MYSQL_DATABASE')]:
+        if variable in os.environ: datos[clave]=os.environ[variable]
+    datos.setdefault('host','127.0.0.1');datos.setdefault('port',3306);datos.setdefault('database','sistema_banco_mysql');datos.setdefault('user','root')
+    if not datos.get('password'): raise ValueError('Configura MYSQL_PASSWORD o mysql.local.json (archivo privado ignorado por Git).')
+    datos['port']=int(datos['port'])
+    return {n:datos[n] for n in ('host','port','user','password','database')}

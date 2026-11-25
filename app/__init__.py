@@ -1,4 +1,4 @@
-"""Factoría Flask: configura rutas e índice SQL sin abrir Oracle."""
+"""Factoría Flask: configura rutas e índice SQL sin abrir MySQL."""
 import logging
 from flask import Flask, jsonify
 from werkzeug.exceptions import HTTPException

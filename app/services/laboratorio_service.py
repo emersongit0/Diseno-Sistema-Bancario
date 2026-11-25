@@ -19,7 +19,7 @@ def _demostrar(conexion, caso: str) -> Resultado:
         if resultado.estado != "OK":
             return resultado
         detalle = resultado.datos["detalle"]
-        match = re.search(r"SQLCODE=(-?\d+); SQLERRM=(.*)",detalle,re.S)
+        match = re.search(r"MYSQL_ERRNO=(-?\d+); MESSAGE_TEXT=(.*)",detalle,re.S)
         if not match:
             raise RuntimeError("Detalle de laboratorio inválido.")
         codigo,texto = int(match[1]),match[2]

@@ -56,8 +56,8 @@ export function grafico(proyeccion){
  return `<div class="grafico-contenedor"><svg class="grafico grafico-proyeccion" viewBox="0 0 700 295" role="img" aria-label="Proyección mensual en soles, escala desde cero. Inicio ${esc(dinero(filas[0].saldo))}; final ${esc(dinero(filas.at(-1).saldo))} en el mes ${ultimoMes}.">${rejilla}<polygon points="${izquierda},${abajo} ${puntos} ${x(ultimoMes)},${abajo}" fill="currentColor" opacity=".07"/><polyline data-serie-saldos="true" points="${puntos}" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>${marcadores}${etiquetas}</svg></div>`;
 }
 
-import {iniciarOracle} from './oracle.js';
-iniciarOracle();
+import {iniciarMySQL} from './oracle.js';
+iniciarMySQL();
 
 document.addEventListener('click',evento=>{const b=evento.target.closest('[data-cerrar]'); if(b) document.getElementById(b.dataset.cerrar)?.close();});
 const menu = $('#menu-movil'); const mediaMovil = window.matchMedia('(max-width:700px)'); const sincronizarMenu = ()=>{ $('#barra-lateral').inert = mediaMovil.matches && !$('#barra-lateral').classList.contains('abierta'); }; mediaMovil.addEventListener('change',sincronizarMenu); sincronizarMenu(); menu.onclick=()=>{const abierta=$('#barra-lateral').classList.toggle('abierta');menu.setAttribute('aria-expanded',String(abierta));sincronizarMenu();};

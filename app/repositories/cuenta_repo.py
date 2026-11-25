@@ -44,5 +44,5 @@ def comision(conexion: Any, monto, identificador: int) -> Resultado:
 
 
 def primera_activa(conexion: Any) -> int | None:
-    filas = consultar(conexion,"SELECT ID_CUENTA FROM CUENTAS WHERE ESTADO='ACTIVA' ORDER BY ID_CUENTA FETCH FIRST 1 ROW ONLY")
+    filas = consultar(conexion,"SELECT ID_CUENTA FROM CUENTAS WHERE ESTADO='ACTIVA' ORDER BY ID_CUENTA LIMIT 1")
     return int(filas[0]["id_cuenta"]) if filas else None

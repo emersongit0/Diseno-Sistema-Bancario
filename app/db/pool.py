@@ -1,34 +1,36 @@
-"""Pool THIN perezoso, sin abrir conexiones al importar o crear la aplicación."""
+"""Pool MySQL perezoso y transacciones explícitas por petición."""
 from contextlib import contextmanager
-from collections.abc import Iterator
 from threading import Lock
-import os
-import oracledb
+import atexit
 from flask import current_app
+from mysql.connector.pooling import MySQLConnectionPool
+from mysql.connector.constants import ClientFlag
 from app.config import parametros_conexion
+_CERROJO=Lock()
 
-_CERROJO = Lock()
 
-
-def obtener_pool() -> oracledb.ConnectionPool:
-    """Inicializa un pool por aplicación; las pruebas nunca cargan credenciales."""
-    app = current_app._get_current_object()
+def obtener_pool():
+    app=current_app._get_current_object()
     with _CERROJO:
-        if "oracle_pool" not in app.extensions:
-            parametros = parametros_conexion()
-            minimo,maximo = int(os.getenv("POOL_MIN","1")),int(os.getenv("POOL_MAX","3"))
-            if not 1 <= minimo <= maximo:
-                raise ValueError("Configuración inválida del pool.")
-            app.extensions["oracle_pool"] = oracledb.create_pool(
-                **parametros,min=minimo,max=maximo,increment=1,ping_interval=60,
-                getmode=oracledb.POOL_GETMODE_TIMEDWAIT,wait_timeout=15000,
-                tcp_connect_timeout=15,retry_count=0)
-    return app.extensions["oracle_pool"]
+        if 'mysql_pool' not in app.extensions:
+            parametros=app.config.get('MYSQL_CONFIG') or parametros_conexion()
+            app.extensions['mysql_pool']=MySQLConnectionPool(**parametros,pool_name='banco_'+str(id(app)),pool_size=5,pool_reset_session=True,client_flags=[ClientFlag.FOUND_ROWS],autocommit=False,charset='utf8mb4',use_unicode=True,use_pure=True,connection_timeout=15,read_timeout=15,write_timeout=15)
+            cerrar=getattr(app.extensions['mysql_pool'],'_remove_connections',None)
+            if cerrar: atexit.register(cerrar)
+    return app.extensions['mysql_pool']
 
 
 @contextmanager
-def conexion() -> Iterator[oracledb.Connection]:
-    """Presta una conexión y garantiza su devolución mediante context manager."""
-    with obtener_pool().acquire() as prestada:
-        prestada.call_timeout = 15000
+def conexion():
+    prestada=obtener_pool().get_connection()
+    try:
+        with prestada.cursor() as cursor:
+            cursor.execute("SET SESSION time_zone='-05:00'")
+            cursor.execute('SET SESSION innodb_lock_wait_timeout=5')
+            cursor.execute('SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED')
+            cursor.execute('SET @banco_importacion=0')
+        prestada.start_transaction()
         yield prestada
+    finally:
+        try: prestada.rollback()
+        finally: prestada.close()

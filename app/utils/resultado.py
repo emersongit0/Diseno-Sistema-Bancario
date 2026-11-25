@@ -1,4 +1,4 @@
-"""Resultado interno independiente de Flask y del controlador Oracle."""
+"""Resultado interno independiente de Flask y del controlador MySQL."""
 from dataclasses import dataclass
 from typing import Any
 

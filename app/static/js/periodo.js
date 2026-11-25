@@ -5,7 +5,7 @@ export function selectorPeriodo(selector){
  const campoMes=document.createElement('div'),campoAnio=document.createElement('div');campoMes.className=campoAnio.className='periodo-subcampo';
  const mes=document.createElement('select');mes.id=origen.id+'-mes';mes.required=true;
  meses.forEach((nombre,i)=>mes.append(new Option(nombre,String(i+1).padStart(2,'0'))));
- const anio=document.createElement('input');anio.type='number';anio.id=origen.id+'-anio';anio.min='1';anio.max='9998';anio.step='1';anio.required=true;anio.inputMode='numeric';
+ const anio=document.createElement('input');anio.type='number';anio.id=origen.id+'-anio';anio.min='1000';anio.max='9998';anio.step='1';anio.required=true;anio.inputMode='numeric';
  for(const [campo,control,texto] of [[campoMes,mes,'Mes'],[campoAnio,anio,'Año']]){const label=document.createElement('label');label.htmlFor=control.id;label.textContent=texto;campo.append(label,control);}
  const ahora=()=>{const partes=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Lima',year:'numeric',month:'2-digit'}).formatToParts(new Date());return partes.find(p=>p.type==='year').value+'-'+partes.find(p=>p.type==='month').value;};
  function sincronizar(){origen.value=anio.checkValidity()&&mes.value?String(Number(anio.value)).padStart(4,'0')+'-'+mes.value:'';origen.dispatchEvent(new Event('change',{bubbles:true}));}

@@ -1,1 +1,1 @@
-"""Componentes del backend Banco Oracle."""
+"""Componentes del backend Banco MySQL."""

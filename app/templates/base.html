@@ -2,14 +2,14 @@
 <html lang="es">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light"><title>{{ titulo }} · Banco Oracle</title>
+  <meta name="color-scheme" content="light"><title>{{ titulo }} · Banco MySQL</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/banco.css') }}">
 </head>
 <body class="banco-ui antialiased" data-pagina="{{ pagina }}">
 <a href="#contenido" class="saltar">Ir al contenido</a>
 <aside id="barra-lateral" class="sidebar" aria-label="Navegación principal">
-  <a class="marca" href="/"><span class="marca-icono" aria-hidden="true">◎</span><span>Banco<span class="marca-sub">ORACLE</span></span></a>
+  <a class="marca" href="/"><span class="marca-icono" aria-hidden="true">◎</span><span>Banco<span class="marca-sub">MYSQL</span></span></a>
   <p class="panel-identidad">Panel interno de gestión bancaria</p>
   <nav aria-label="Secciones del banco">{% for grupo_nombre,nombres in grupos %}
     <section class="nav-grupo" aria-label="{{ grupo_nombre }}"><h2 class="nav-titulo">{{ grupo_nombre }}</h2>
@@ -18,23 +18,23 @@
       <span>{{ etiqueta }}</span>{% if pagina == nombre %}<span class="nav-punto"></span>{% endif %}
     </a>{% endfor %}</section>{% endfor %}
   </nav>
-  <div class="sidebar-pie"><span class="punto"></span> Oracle Database <p>Proyecto académico · PL/SQL</p></div>
+  <div class="sidebar-pie"><span class="punto"></span> MySQL Database <p>Proyecto académico · SQL MySQL</p></div>
 </aside>
 <div class="principal">
-  <header class="topbar"><div class="topbar-ruta"><button id="menu-movil" type="button" class="boton-icono menu-movil" aria-label="Abrir navegación" aria-controls="barra-lateral" aria-expanded="false">☰</button><span>{{ grupo }}</span><span class="separador">/</span><strong>{{ titulo }}</strong></div><div class="topbar-derecha"><span class="moneda">PEN · S/</span><span class="avatar" aria-label="Banco Oracle">BO</span></div></header>
+  <header class="topbar"><div class="topbar-ruta"><button id="menu-movil" type="button" class="boton-icono menu-movil" aria-label="Abrir navegación" aria-controls="barra-lateral" aria-expanded="false">☰</button><span>{{ grupo }}</span><span class="separador">/</span><strong>{{ titulo }}</strong></div><div class="topbar-derecha"><span class="moneda">PEN · S/</span><span class="avatar" aria-label="Banco MySQL">BO</span></div></header>
   <main id="contenido" class="contenido">
-    <div class="encabezado"><div><p class="eyebrow">BANCO ORACLE</p><h1>{{ titulo }}</h1><p class="subtitulo">{{ descripcion }}</p></div><div class="encabezado-acciones">{% block acciones %}{% endblock %}</div></div>
+    <div class="encabezado"><div><p class="eyebrow">BANCO MYSQL</p><h1>{{ titulo }}</h1><p class="subtitulo">{{ descripcion }}</p></div><div class="encabezado-acciones">{% block acciones %}{% endblock %}</div></div>
     <noscript><p class="aviso error">Activa JavaScript para consultar datos y operar.</p></noscript>
     <div id="estado-pagina" role="status" class="sr-only" aria-live="polite"></div>
     {% block contenido %}{% endblock %}
     <section class="panel-oracle" aria-labelledby="titulo-objetos">
-      <div class="panel-oracle-top"><div class="oracle-titulo"><span class="simbolo-codigo" aria-hidden="true">&lt;/&gt;</span><div><h2 id="titulo-objetos">Objetos Oracle usados</h2><p id="oracle-estado">Implementación disponible; aún no hay una acción reportada.</p></div></div><div class="acciones-inline"><button type="button" id="toggle-oracle" class="boton secundario" aria-controls="oracle-contexto" aria-expanded="false">Cómo funciona en Oracle</button><button id="ver-codigo" type="button" class="boton secundario">Ver código PL/SQL ↗</button></div></div>
-      <div id="oracle-contexto" hidden><h3 id="oracle-accion">Explora la implementación de esta pantalla</h3><p id="oracle-explicacion" class="texto-suave">Puedes abrir el código antes de operar. No significa que se haya ejecutado.</p><div id="objetos-oracle" class="chips"></div><div id="oracle-temas" class="texto-suave"></div><p class="nota-metadatos">Los objetos son metadatos declarados por la aplicación, no una traza automática del motor Oracle.</p></div>
+      <div class="panel-oracle-top"><div class="oracle-titulo"><span class="simbolo-codigo" aria-hidden="true">&lt;/&gt;</span><div><h2 id="titulo-objetos">Objetos MySQL usados</h2><p id="oracle-estado">Implementación disponible; aún no hay una acción reportada.</p></div></div><div class="acciones-inline"><button type="button" id="toggle-oracle" class="boton secundario" aria-controls="oracle-contexto" aria-expanded="false">Cómo funciona en MySQL</button><button id="ver-codigo" type="button" class="boton secundario">Ver código SQL MySQL ↗</button></div></div>
+      <div id="oracle-contexto" hidden><h3 id="oracle-accion">Explora la implementación de esta pantalla</h3><p id="oracle-explicacion" class="texto-suave">Puedes abrir el código antes de operar. No significa que se haya ejecutado.</p><div id="objetos-oracle" class="chips"></div><div id="oracle-temas" class="texto-suave"></div><p class="nota-metadatos">Los objetos son metadatos declarados por la aplicación, no una traza automática del motor MySQL.</p></div>
     </section>
-    <footer class="pie">Banco Oracle <span>Cuentas y transferencias · Moneda nacional</span></footer>
+    <footer class="pie">Banco MySQL <span>Cuentas y transferencias · Moneda nacional</span></footer>
   </main>
 </div>
-<dialog id="modal-codigo" class="modal modal-grande" aria-labelledby="titulo-codigo"><div class="modal-top"><div><p class="eyebrow">IMPLEMENTACIÓN ORACLE</p><h2 id="titulo-codigo">Código PL/SQL</h2></div><button type="button" class="boton-icono" data-cerrar="modal-codigo" aria-label="Cerrar código">×</button></div><div class="codigo-controles"><label for="objeto-codigo">Objeto</label><select id="objeto-codigo"></select><button id="copiar-codigo" type="button" class="boton secundario">Copiar código</button></div><p id="alcance-codigo" class="aviso"></p><p id="archivo-codigo" class="texto-suave"></p><pre class="codigo"><code id="contenido-codigo">Selecciona un objeto.</code></pre></dialog>
+<dialog id="modal-codigo" class="modal modal-grande" aria-labelledby="titulo-codigo"><div class="modal-top"><div><p class="eyebrow">IMPLEMENTACIÓN MYSQL</p><h2 id="titulo-codigo">Código SQL MySQL</h2></div><button type="button" class="boton-icono" data-cerrar="modal-codigo" aria-label="Cerrar código">×</button></div><div class="codigo-controles"><label for="objeto-codigo">Objeto</label><select id="objeto-codigo"></select><button id="copiar-codigo" type="button" class="boton secundario">Copiar código</button></div><p id="alcance-codigo" class="aviso"></p><p id="archivo-codigo" class="texto-suave"></p><pre class="codigo"><code id="contenido-codigo">Selecciona un objeto.</code></pre></dialog>
 <dialog id="modal-detalle" class="modal modal-grande" aria-labelledby="titulo-detalle"><div class="modal-top"><h2 id="titulo-detalle">Detalle</h2><button type="button" class="boton-icono" data-cerrar="modal-detalle" aria-label="Cerrar detalle">×</button></div><div id="contenido-detalle"></div></dialog>
 <dialog id="modal-revision" class="modal" aria-labelledby="titulo-revision"><div class="modal-top"><h2 id="titulo-revision">Revisar operación</h2><button type="button" class="boton-icono" data-cerrar="modal-revision" aria-label="Volver a editar">×</button></div><div id="contenido-revision"></div><p id="nota-revision" class="texto-suave"></p><div class="form-pie"><button type="button" id="volver-revision" class="boton secundario" data-cerrar="modal-revision">Volver a editar</button><button id="aceptar-revision" type="button" class="boton">Confirmar</button></div></dialog>
 <div id="toasts" class="toasts" aria-live="polite" aria-atomic="false"></div>

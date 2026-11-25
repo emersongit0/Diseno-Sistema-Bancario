@@ -1,4 +1,4 @@
-"""Serialización consistente de fechas y cantidades Oracle."""
+"""Serialización consistente de fechas y cantidades MySQL."""
 from datetime import date, datetime
 from decimal import Decimal
 from flask.json.provider import DefaultJSONProvider

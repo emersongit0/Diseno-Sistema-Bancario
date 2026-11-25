@@ -1,4 +1,4 @@
-"""Valida estructura, formatos e importes antes de llamar a Oracle."""
+"""Valida estructura, formatos e importes antes de llamar a MySQL."""
 from datetime import datetime, date
 from decimal import Decimal, InvalidOperation
 import re
@@ -49,6 +49,8 @@ def mes_referencia(valor: object) -> date | None:
     if not isinstance(valor,str) or not re.fullmatch(r'\d{4}-\d{2}',valor):
         raise ErrorAplicacion("mes_ref debe tener formato YYYY-MM.")
     try:
-        return datetime.strptime(valor,'%Y-%m').date()
+        fecha=datetime.strptime(valor,'%Y-%m').date()
+        if fecha.year<1000: raise ValueError
+        return fecha
     except ValueError:
         raise ErrorAplicacion("mes_ref contiene una fecha inválida.") from None

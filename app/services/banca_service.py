@@ -16,7 +16,7 @@ def clientes() -> tuple[dict,int]:
 
 def crear_cliente(datos: dict) -> tuple[dict,int]:
     datos = v.cliente(datos,crear=True)
-    return ejecutar(lambda c:cliente_repo.crear(c,datos),["CLIENTES","TRG_CLIENTES_BI","SQ_CLIENTE"])
+    return ejecutar(lambda c:cliente_repo.crear(c,datos),["CLIENTES","TRG_CLIENTES_BI"])
 
 
 def editar_cliente(identificador: int, datos: dict) -> tuple[dict,int]:

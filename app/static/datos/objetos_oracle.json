@@ -44,62 +44,79 @@
       "Restricciones"
     ]
   },
-  "SQ_CLIENTE": {
-    "nombre": "SQ_CLIENTE",
-    "tipo": "SEQUENCE",
-    "proposito": "Genera identificadores para clientes.",
+  "TBL_LIMITES_CATEGORIAS": {
+    "nombre": "TBL_LIMITES_CATEGORIAS",
+    "tipo": "TABLE",
+    "proposito": "Conserva y permite editar los límites de saldo de las categorías.",
     "temas": [
-      "Secuencias"
+      "Configuración",
+      "Restricciones"
+    ]
+  },
+  "TBL_SECUENCIAS": {
+    "nombre": "TBL_SECUENCIAS",
+    "tipo": "TABLE",
+    "proposito": "Implementación MySQL de tbl secuencias.",
+    "temas": [
+      "Tablas",
+      "Bloqueos"
+    ]
+  },
+  "CLIENTES": {
+    "nombre": "CLIENTES",
+    "tipo": "VIEW",
+    "proposito": "Ofrece un nombre de acceso a clientes dentro del esquema personal.",
+    "temas": [
+      "Vistas de compatibilidad"
+    ]
+  },
+  "CUENTAS": {
+    "nombre": "CUENTAS",
+    "tipo": "VIEW",
+    "proposito": "Ofrece un nombre de acceso a cuentas dentro del esquema personal.",
+    "temas": [
+      "Vistas de compatibilidad"
+    ]
+  },
+  "MOVIMIENTOS": {
+    "nombre": "MOVIMIENTOS",
+    "tipo": "VIEW",
+    "proposito": "Ofrece un nombre de acceso a movimientos dentro del esquema personal.",
+    "temas": [
+      "Vistas de compatibilidad"
+    ]
+  },
+  "AUDITORIA": {
+    "nombre": "AUDITORIA",
+    "tipo": "VIEW",
+    "proposito": "Ofrece un nombre de acceso a auditoría dentro del esquema personal.",
+    "temas": [
+      "Vistas de compatibilidad"
+    ]
+  },
+  "LOG_ERRORES": {
+    "nombre": "LOG_ERRORES",
+    "tipo": "VIEW",
+    "proposito": "Ofrece un nombre de acceso a log de errores dentro del esquema personal.",
+    "temas": [
+      "Vistas de compatibilidad"
+    ]
+  },
+  "LIMITES_CATEGORIAS": {
+    "nombre": "LIMITES_CATEGORIAS",
+    "tipo": "VIEW",
+    "proposito": "Conserva y permite editar los límites de saldo de las categorías.",
+    "temas": [
+      "Vistas de compatibilidad"
     ]
   },
   "SQ_CUENTA": {
     "nombre": "SQ_CUENTA",
-    "tipo": "SEQUENCE",
-    "proposito": "Genera identificadores para cuentas, avanzando de diez en diez.",
+    "tipo": "VIEW",
+    "proposito": "Muestra el contador transaccional usado para numerar cuentas; MySQL no tiene secuencias Oracle.",
     "temas": [
-      "Secuencias"
-    ]
-  },
-  "SQ_MOVIMIENTO": {
-    "nombre": "SQ_MOVIMIENTO",
-    "tipo": "SEQUENCE",
-    "proposito": "Genera identificadores para movimientos.",
-    "temas": [
-      "Secuencias"
-    ]
-  },
-  "SQ_AUDITORIA": {
-    "nombre": "SQ_AUDITORIA",
-    "tipo": "SEQUENCE",
-    "proposito": "Genera identificadores para auditoría.",
-    "temas": [
-      "Secuencias"
-    ]
-  },
-  "SQ_LOG": {
-    "nombre": "SQ_LOG",
-    "tipo": "SEQUENCE",
-    "proposito": "Genera identificadores para el log de errores.",
-    "temas": [
-      "Secuencias"
-    ]
-  },
-  "T_MOV_FILA": {
-    "nombre": "T_MOV_FILA",
-    "tipo": "TYPE",
-    "proposito": "Define una fila del estado de cuenta mensual.",
-    "temas": [
-      "Tipos SQL",
-      "PIPELINED"
-    ]
-  },
-  "T_MOV_TABLA": {
-    "nombre": "T_MOV_TABLA",
-    "tipo": "TYPE",
-    "proposito": "Define la colección de filas del estado mensual.",
-    "temas": [
-      "Tipos SQL",
-      "PIPELINED"
+      "Vista",
+      "Contador transaccional"
     ]
   },
   "V_ESTADO_CUENTA": {
@@ -118,23 +135,14 @@
       "Vistas"
     ]
   },
-  "SP_LOG_ERROR": {
-    "nombre": "SP_LOG_ERROR",
-    "tipo": "PROCEDURE",
-    "proposito": "Guarda el error con transacción autónoma, incluso ante rollback del llamador.",
-    "temas": [
-      "Procedimientos",
-      "Excepciones",
-      "Transacción autónoma"
-    ]
-  },
   "FN_SALDO_DISPONIBLE": {
     "nombre": "FN_SALDO_DISPONIBLE",
     "tipo": "FUNCTION",
     "proposito": "Consulta el saldo vigente y rechaza cuentas inexistentes.",
     "temas": [
+      "SELECT INTO",
       "Funciones",
-      "Excepciones"
+      "SIGNAL"
     ]
   },
   "FN_CATEGORIA_CLIENTE": {
@@ -142,8 +150,9 @@
     "tipo": "FUNCTION",
     "proposito": "Determina el nivel del cliente a partir de su saldo total.",
     "temas": [
+      "IF/ELSEIF/ELSE",
       "Funciones",
-      "IF/ELSIF/ELSE"
+      "Configuración"
     ]
   },
   "FN_COMISION": {
@@ -152,8 +161,8 @@
     "proposito": "Calcula la comisión según categoría y aplica el mínimo de un sol.",
     "temas": [
       "Funciones",
-      "Constantes",
-      "IF/ELSIF/ELSE"
+      "DECIMAL",
+      "IF/ELSEIF/ELSE"
     ]
   },
   "TRG_CLIENTES_BI": {
@@ -161,8 +170,17 @@
     "tipo": "TRIGGER",
     "proposito": "Asigna el identificador cuando falta y normaliza nombres y apellidos.",
     "temas": [
-      "Triggers BEFORE",
-      "Secuencias"
+      "Trigger BEFORE INSERT",
+      "Normalización"
+    ]
+  },
+  "TRG_CLIENTES_BU": {
+    "nombre": "TRG_CLIENTES_BU",
+    "tipo": "TRIGGER",
+    "proposito": "Implementación MySQL de trg clientes bu.",
+    "temas": [
+      "Trigger BEFORE UPDATE",
+      "Normalización"
     ]
   },
   "TRG_CUENTAS_BI": {
@@ -170,8 +188,8 @@
     "tipo": "TRIGGER",
     "proposito": "Genera identificador y número de cuenta desde un único NEXTVAL.",
     "temas": [
-      "Triggers BEFORE",
-      "Secuencias"
+      "Trigger BEFORE",
+      "Contador transaccional"
     ]
   },
   "TRG_MOVIMIENTOS_BI": {
@@ -199,6 +217,16 @@
     "temas": [
       "Triggers AFTER",
       "Auditoría"
+    ]
+  },
+  "SP_LOG_ERROR": {
+    "nombre": "SP_LOG_ERROR",
+    "tipo": "PROCEDURE",
+    "proposito": "Guarda el error con transacción autónoma, incluso ante rollback del llamador.",
+    "temas": [
+      "Procedimientos",
+      "INSERT",
+      "Transacción desde Flask"
     ]
   },
   "SP_ABRIR_CUENTA": {
@@ -251,10 +279,10 @@
     "tipo": "PROCEDURE",
     "proposito": "Procesa cuentas elegibles y devuelve cantidades actualizadas y omitidas.",
     "temas": [
-      "FOR",
-      "Cursor implícito",
-      "SQL%ROWCOUNT",
-      "SQL%FOUND"
+      "Cursor",
+      "LOOP",
+      "ROW_COUNT()",
+      "Transacciones"
     ]
   },
   "SP_ACTUALIZAR_CATEGORIAS": {
@@ -263,8 +291,41 @@
     "proposito": "Recorre clientes y actualiza la categoría cuando cambia su nivel.",
     "temas": [
       "LOOP",
-      "EXIT WHEN",
-      "Cursores"
+      "FETCH/LEAVE",
+      "Funciones",
+      "UPDATE"
+    ]
+  },
+  "SP_RESUMEN_CLIENTE": {
+    "nombre": "SP_RESUMEN_CLIENTE",
+    "tipo": "PROCEDURE",
+    "proposito": "Consulta al cliente y resume saldo total, nivel y siguiente categoría.",
+    "temas": [
+      "Procedimientos IN/OUT",
+      "SELECT INTO",
+      "IF/ELSEIF/ELSE"
+    ]
+  },
+  "SP_SIMULADOR_INTERES": {
+    "nombre": "SP_SIMULADOR_INTERES",
+    "tipo": "PROCEDURE",
+    "proposito": "Proyecta el ahorro y el tiempo hasta la meta sin modificar cuentas.",
+    "temas": [
+      "Procedimientos IN/OUT",
+      "Variables locales",
+      "WHILE",
+      "JSON"
+    ]
+  },
+  "SP_ESTADO_CUENTA_MENSUAL": {
+    "nombre": "SP_ESTADO_CUENTA_MENSUAL",
+    "tipo": "PROCEDURE",
+    "proposito": "Recorre movimientos del mes y calcula su saldo acumulado incluyendo el saldo anterior.",
+    "temas": [
+      "Cursor explícito",
+      "OPEN/FETCH/CLOSE",
+      "JSON",
+      "Saldo anterior"
     ]
   },
   "SP_REPORTE_CLIENTES": {
@@ -272,8 +333,8 @@
     "tipo": "PROCEDURE",
     "proposito": "Construye un reporte JSON de clientes, cuentas y últimos movimientos.",
     "temas": [
-      "Cursores con parámetros",
       "Cursores anidados",
+      "Variables locales",
       "JSON"
     ]
   },
@@ -282,103 +343,10 @@
     "tipo": "PROCEDURE",
     "proposito": "Provoca y captura excepciones controladas, revirtiendo cambios de prueba.",
     "temas": [
-      "Excepciones",
-      "WHEN OTHERS",
-      "RERAISE",
-      "SAVEPOINT"
-    ]
-  },
-  "FN_ESTADO_CUENTA_MENSUAL": {
-    "nombre": "FN_ESTADO_CUENTA_MENSUAL",
-    "tipo": "FUNCTION",
-    "proposito": "Recorre movimientos del mes y calcula su saldo acumulado incluyendo el saldo anterior.",
-    "temas": [
-      "Cursor explícito",
-      "OPEN/FETCH/CLOSE",
-      "PIPELINED",
-      "%TYPE"
-    ]
-  },
-  "CLIENTES": {
-    "nombre": "CLIENTES",
-    "tipo": "SYNONYM",
-    "proposito": "Ofrece un nombre de acceso a clientes dentro del esquema personal.",
-    "temas": [
-      "Sinónimos"
-    ]
-  },
-  "CUENTAS": {
-    "nombre": "CUENTAS",
-    "tipo": "SYNONYM",
-    "proposito": "Ofrece un nombre de acceso a cuentas dentro del esquema personal.",
-    "temas": [
-      "Sinónimos"
-    ]
-  },
-  "MOVIMIENTOS": {
-    "nombre": "MOVIMIENTOS",
-    "tipo": "SYNONYM",
-    "proposito": "Ofrece un nombre de acceso a movimientos dentro del esquema personal.",
-    "temas": [
-      "Sinónimos"
-    ]
-  },
-  "AUDITORIA": {
-    "nombre": "AUDITORIA",
-    "tipo": "SYNONYM",
-    "proposito": "Ofrece un nombre de acceso a auditoría dentro del esquema personal.",
-    "temas": [
-      "Sinónimos"
-    ]
-  },
-  "LOG_ERRORES": {
-    "nombre": "LOG_ERRORES",
-    "tipo": "SYNONYM",
-    "proposito": "Ofrece un nombre de acceso a log de errores dentro del esquema personal.",
-    "temas": [
-      "Sinónimos"
-    ]
-  },
-  "BLOQUE_RESUMEN_CLIENTE": {
-    "nombre": "BLOQUE_RESUMEN_CLIENTE",
-    "tipo": "BLOQUE",
-    "proposito": "Consulta al cliente y resume saldo total, nivel y siguiente categoría.",
-    "temas": [
-      "Bloques anónimos",
-      "%TYPE",
-      "%ROWTYPE",
-      "IF/ELSIF/ELSE"
-    ]
-  },
-  "BLOQUE_SIMULADOR_INTERES": {
-    "nombre": "BLOQUE_SIMULADOR_INTERES",
-    "tipo": "BLOQUE",
-    "proposito": "Proyecta el ahorro y el tiempo hasta la meta sin modificar cuentas.",
-    "temas": [
-      "Bloques anónimos",
-      "Constantes",
-      "%TYPE",
-      "%ROWTYPE",
-      "FOR",
-      "WHILE"
-    ]
-  },
-  "TBL_LIMITES_CATEGORIAS": {
-    "nombre": "TBL_LIMITES_CATEGORIAS",
-    "tipo": "TABLE",
-    "proposito": "Conserva y permite editar los límites de saldo de las categorías.",
-    "temas": [
-      "Configuración",
-      "Restricciones"
-    ]
-  },
-  "LIMITES_CATEGORIAS": {
-    "nombre": "LIMITES_CATEGORIAS",
-    "tipo": "SYNONYM",
-    "proposito": "Conserva y permite editar los límites de saldo de las categorías.",
-    "temas": [
-      "Configuración",
-      "Restricciones"
+      "Handlers",
+      "GET DIAGNOSTICS",
+      "SIGNAL/RESIGNAL",
+      "Rollback"
     ]
   }
 }
